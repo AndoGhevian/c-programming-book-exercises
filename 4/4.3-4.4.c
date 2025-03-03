@@ -1,19 +1,27 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #define MAXOP 100
 #define NUMBER '0'
+#define PRINT 'A' + '9' + 1 /* make sure is greater than max('A', '9') for any character set */
+#define DUPLICATE 'A' + '9' + 2
+#define SWAP 'A' + '9' + 3
+#define CLEAR 'A' + '9' + 4
 
 double atof(char s[]);
 
 void push(double val);
 double pop(void);
 int getop(char s[]);
+void print(void);
+void clear(void);
 
 main() {
   int type;
-  double op2;
+  double op2, sw1, sw2;
   char s[MAXOP];
+  int sr = 0; /* skip return */
 
   while((type = getop(s)) != EOF)
     switch(type) {
@@ -38,8 +46,28 @@ main() {
         op2 = pop();
         push((int)pop() % (int)op2);
         break;
+      case PRINT:
+        sr = 1;
+        break;
+      case SWAP:
+        sw1 = pop();
+        sw2 = pop();
+        push(sw1);
+        push(sw2);
+        break;
+      case DUPLICATE:
+        push(op2 = pop());
+        push(op2);
+        break;
+      case CLEAR:
+        clear();
+        break;
       case '\n':
-        printf("\t%.8g\n", pop());
+        if(sr)
+          print();
+        else
+          printf("\t%.8g\n", pop());
+        sr = 0;
         break;
       default:
         printf("error: unknown command %s\n", s);
@@ -70,6 +98,16 @@ double pop(void) {
   }
 }
 
+void print(void) {
+  int i;
+  for(i = 0; i < calbufp; i++)
+    printf("%g ", calbuf[i]);
+}
+
+void clear(void) {
+  calbufp = 0;
+}
+
 int getch(void);
 void ungetch(int);
 
@@ -80,11 +118,14 @@ int getop(char s[]) {
   s[1] = '\0';
   
   i = 0;
-  if(c == '-' || c == '+' || isdigit(c))
+  if(s[0] == '-' || s[0] == '+' || isdigit(s[0]))
     while(isdigit(s[++i] = c = getch()));
 
   if(c == '.')
     while(isdigit(s[++i] = c = getch()));
+
+  if(isalpha(s[0]))
+    while(isalpha(s[++i] = c = getch()));
 
   if(i != 0) {
     s[i] = '\0';
@@ -95,11 +136,20 @@ int getop(char s[]) {
   if(isdigit(s[0]))
     return NUMBER;
 
-  if(i == 0 || i == 1) {
+  if(i == 0 || i == 1)
     return s[0];
-  }
 
-  return NUMBER;
+  if(!isalpha(s[0]))
+    return NUMBER;
+
+  if(!strcmp(s, "prnt") || !strcmp(s, "print"))
+    return PRINT;
+  if(!strcmp(s, "dup") || !strcmp(s, "duplicate"))
+    return DUPLICATE;
+  if(!strcmp(s, "sw") || !strcmp(s, "swp") || !strcmp(s, "swap"))
+    return SWAP;
+  if(!strcmp(s, "clr") || !strcmp(s, "clear"))
+    return CLEAR;
 }
 
 #define BUFFSIZE 100
