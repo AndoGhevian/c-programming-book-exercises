@@ -156,35 +156,47 @@ void clear(void) {
   calbufp = 0;
 }
 
-int getch(void);
-void ungetch(int);
+#define LINELIMIT 100
+int len;
+char line[LINELIMIT + 1];
 
+void get_line(void);
+
+int i;
 int getop(char s[]) {
-  int i, c;
+  int li;
 
-  while((s[0] = c = getch()) == ' ' && isspace(c));
-  s[1] = '\0';
-  
-  i = 0;
-  if(s[0] == '-' || s[0] == '+' || isdigit(s[0]))
-    while(isdigit(s[++i] = c = getch()));
-
-  if(c == '.')
-    while(isdigit(s[++i] = c = getch()));
-
-  if(isalpha(s[0]))
-    while(isalpha(s[++i] = c = getch()));
-
-  if(i != 0) {
-    s[i] = '\0';
-    if(c != EOF)
-      ungetch(c);
+  if(!len || i == len) {
+    i = 0;
+    get_line();
   }
+
+  while(isspace(s[0] = line[i++]) && s[0] != '\n');
+  s[1] = '\0';
+
+  li = 0;
+  if(isalpha(s[0]))
+    while(isalpha(s[++li] = line[i]))
+      i++;
+  else {
+    if(s[0] == '-' || s[0] == '+' || isdigit(s[0]))
+      while(isdigit(s[++li] = line[i]))
+        i++;
+
+    if(s[li] == '.')
+      while(isdigit(s[++li] = line[++i]));
+  }
+
+  if(li != 0)
+    s[li] = '\0';
+
+  if(s[0] == '\0')
+    return EOF;
 
   if(isdigit(s[0]))
     return NUMBER;
 
-  if(i == 0 || i == 1) {
+  if(li == 0 || li == 1) {
     if(isalpha(s[0]))
       return VAR;
     return s[0];
@@ -242,4 +254,18 @@ void ungets(char s[]) {
 
   for(i = strlen(s) - 1; i >= 0; i--)
     ungetch_many(s[i]);
+}
+
+void get_line(void) {
+  int c, i;
+  int lim = LINELIMIT;
+
+  i = 0;
+  while(--lim >= 0 && (c = getchar()) != EOF && c != '\n')
+    line[i++] = c;
+  if(c == '\n')
+    line[i++] = c;
+
+  line[i] = '\0';
+  len = i;
 }
