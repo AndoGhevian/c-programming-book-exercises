@@ -34,6 +34,17 @@ main() {
   char s[MAXOP];
   int sr = 0; /* skip return */
 
+  void ungets(char s[]);
+  int getch(void);
+  int i;
+  char stest[] = "hello";
+  ungets(stest);
+
+  printf("testing ungets(s), s=\"%s\"\n", stest);
+  for(i = 0; i < strlen(stest); i++)
+    putchar(getch());
+  putchar('\n');
+
   vc = -1;
   while((type = getop(s)) != EOF) {
     if(type != '=')
@@ -212,4 +223,11 @@ void ungetch(int c) {
     printf("ungetch: too many characters\n");
   else
     cbuf[cbufp++] = c;
+}
+
+void ungets(char s[]) {
+  int i;
+
+  for(i = strlen(s) - 1; i >= 0; i--)
+    ungetch(s[i]);
 }
