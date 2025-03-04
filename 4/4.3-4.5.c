@@ -1,19 +1,29 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <math.h>
 
 #define MAXOP 100
-#define NUMBER '0'
-#define PRINT 'A' + '9' + 1 /* make sure is greater than max('A', '9') for any character set */
-#define DUPLICATE 'A' + '9' + 2
-#define SWAP 'A' + '9' + 3
-#define CLEAR 'A' + '9' + 4
+/*
+  make sure those are greater than max('A', '9')
+  for any character set.
+*/
+enum cmd {
+  NUMBER = 'A' + '9',
+  PRINT,
+  DUPLICATE,
+  SWAP,
+  CLEAR,
+  SIN,
+  EXP,
+  POW,
+};
 
 double atof(char s[]);
 
 void push(double val);
 double pop(void);
-int getop(char s[]);
+enum cmd getop(char s[]);
 void print(void);
 void clear(void);
 
@@ -45,6 +55,16 @@ main() {
       case '%':
         op2 = pop();
         push((int)pop() % (int)op2);
+        break;
+      case SIN:
+        push(sin(pop()));
+        break;
+      case EXP:
+        push(pow(10, pop()));
+        break;
+      case POW:
+        op2 = pop();
+        push(pow(pop(), op2));
         break;
       case PRINT:
         sr = 1;
@@ -111,7 +131,7 @@ void clear(void) {
 int getch(void);
 void ungetch(int);
 
-int getop(char s[]) {
+enum cmd getop(char s[]) {
   int i, c;
 
   while((s[0] = c = getch()) == ' ' && isspace(c));
@@ -150,6 +170,12 @@ int getop(char s[]) {
     return SWAP;
   if(!strcmp(s, "clr") || !strcmp(s, "clear"))
     return CLEAR;
+  if(!strcmp(s, "sin"))
+    return SIN;
+  if(!strcmp(s, "exp"))
+    return EXP;
+  if(!strcmp(s, "pow"))
+    return POW;
 }
 
 #define BUFFSIZE 100
