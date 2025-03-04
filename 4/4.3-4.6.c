@@ -5,38 +5,54 @@
 
 #define MAXOP 100
 /*
-  make sure those are greater than max('A', '9')
+  make sure those are greater than max('z', '9')
   for any character set.
 */
-enum cmd {
-  NUMBER = 'A' + '9',
-  PRINT,
-  DUPLICATE,
-  SWAP,
-  CLEAR,
-  SIN,
-  EXP,
-  POW,
-};
+#define NUMBER 'z' + '9'
+#define PRINT 'z' + '9' + 1
+#define DUPLICATE 'z' + '9' + 2
+#define SWAP 'z' + '9' + 3
+#define CLEAR 'z' + '9' + 4
+#define SIN 'z' + '9' + 5
+#define EXP 'z' + '9' + 6
+#define POW 'z' + '9' + 7
+#define VAR 'z' + '9' + 8
+double vars[26];
 
 double atof(char s[]);
 
 void push(double val);
 double pop(void);
-enum cmd getop(char s[]);
+int getop(char s[]);
 void print(void);
 void clear(void);
 
 main() {
   int type;
   double op2, sw1, sw2;
+  int vc;
   char s[MAXOP];
   int sr = 0; /* skip return */
 
-  while((type = getop(s)) != EOF)
+  vc = -1;
+  while((type = getop(s)) != EOF) {
+    if(type != '=')
+      vc = -1;
     switch(type) {
+      case VAR:
+        vc = tolower(s[0]);
+        push(vars[vc - 'a']);
+        break;
       case NUMBER:
         push(atof(s));
+        break;
+      case '=':
+        if(vc == -1)
+          printf("Invalid assignment to rvalue\n");
+        else {
+          pop();
+          push(vars[vc - 'a'] = pop());
+        }
         break;
       case '+':
         push(pop() + pop());
@@ -93,6 +109,7 @@ main() {
         printf("error: unknown command %s\n", s);
         break;
     }
+  }
 
   return 0;
 }
@@ -131,7 +148,7 @@ void clear(void) {
 int getch(void);
 void ungetch(int);
 
-enum cmd getop(char s[]) {
+int getop(char s[]) {
   int i, c;
 
   while((s[0] = c = getch()) == ' ' && isspace(c));
@@ -156,8 +173,11 @@ enum cmd getop(char s[]) {
   if(isdigit(s[0]))
     return NUMBER;
 
-  if(i == 0 || i == 1)
+  if(i == 0 || i == 1) {
+    if(isalpha(s[0]))
+      return VAR;
     return s[0];
+  }
 
   if(!isalpha(s[0]))
     return NUMBER;
