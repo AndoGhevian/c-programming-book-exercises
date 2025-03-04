@@ -35,14 +35,14 @@ main() {
   int sr = 0; /* skip return */
 
   void ungets(char s[]);
-  int getch(void);
+  int getch_many(void);
   int i;
   char stest[] = "hello";
   ungets(stest);
 
-  printf("testing ungets(s), s=\"%s\"\n", stest);
+  printf("testing ungets(s), test_string=\"%s\"\n", stest);
   for(i = 0; i < strlen(stest); i++)
-    putchar(getch());
+    putchar(getch_many());
   putchar('\n');
 
   vc = -1;
@@ -209,16 +209,28 @@ int getop(char s[]) {
     return POW;
 }
 
+int sch = EOF;
+
+int getch(void) {
+  int msch;
+
+  return msch = sch, msch != EOF ? sch = EOF, msch : getchar();
+}
+
+void ungetch(int c) {
+  sch = c; 
+}
+
 #define BUFFSIZE 100
 
 char cbuf[BUFFSIZE];
 int cbufp = 0;
 
-int getch(void) {
+int getch_many(void) {
   return (cbufp > 0) ? cbuf[--cbufp] : getchar();
 }
 
-void ungetch(int c) {
+void ungetch_many(int c) {
   if(cbufp >= BUFFSIZE)
     printf("ungetch: too many characters\n");
   else
@@ -229,5 +241,5 @@ void ungets(char s[]) {
   int i;
 
   for(i = strlen(s) - 1; i >= 0; i--)
-    ungetch(s[i]);
+    ungetch_many(s[i]);
 }
