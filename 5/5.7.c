@@ -3,10 +3,12 @@
 #include "../utils/line_utils.h"
 
 #define MAXLINES 5000
+#define LINESTORAGE 10000
 
 char *lineptr[MAXLINES];
+char linebuff[LINESTORAGE];
 
-int readlines(char *lineptr[], int nlines);
+int readlines(char *lineptr[], char linebuff[], int bufsize, int nlines);
 void writelines(char *lineptr[], int nlines);
 
 void qsort(char *lineptr[], int left, int right);
@@ -15,7 +17,7 @@ main() {
   int nlines;
   /* printf("%d %d %d", '0' > '1', '1' > '2', '1' > 'a'); */
 
-  if((nlines = readlines(lineptr, MAXLINES)) >= 0) {
+  if((nlines = readlines(lineptr, linebuff, LINESTORAGE, MAXLINES)) >= 0) {
     printf("\n");
     qsort(lineptr, 0, nlines - 1);
     writelines(lineptr, nlines);
@@ -56,21 +58,21 @@ void swap(char *lineptr[], int i, int j) {
 char *alloc(int);
 void afree(char *);
 
-int readlines(char *lineptr[], int maxlines) {
+int readlines(char *lineptr[], char linebuff[], int bufsize, int maxlines) {
   int len, nlines;
-  char *p, line[MAXLEN];
+  char *p = linebuff, line[MAXLEN];
 
   nlines = 0;
   while((len = getline_cm(line, MAXLEN - 1)) > 0) {
     if(line[len - 1] == '\n')
       line[--len] = '\0';
-    p = alloc(len + 1);
-    if(p == NULL || nlines > maxlines) {
-      afree(NULL);
+    if(nlines > maxlines || p + len + 1 - linebuff + 1 > bufsize) {
       return -1;
     }
+
     strcpy(p, line);
     lineptr[nlines++] = p;
+    p += len + 1;
   }
   return nlines;
 }
