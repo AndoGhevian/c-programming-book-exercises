@@ -3,7 +3,7 @@
 #include "../utils/line_utils.h"
 
 #define MAXLINES 5000
-#define LINESTORAGE 10000
+#define LINESTORAGE 10
 
 char *lineptr[MAXLINES];
 char linebuff[LINESTORAGE];
@@ -66,7 +66,7 @@ int readlines(char *lineptr[], char linebuff[], int bufsize, int maxlines) {
   while((len = getline_cm(line, MAXLEN - 1)) > 0) {
     if(line[len - 1] == '\n')
       line[--len] = '\0';
-    if(nlines > maxlines || p + len + 1 - linebuff + 1 > bufsize) {
+    if(nlines > maxlines || p + len - linebuff + 1 > bufsize) {
       return -1;
     }
 
