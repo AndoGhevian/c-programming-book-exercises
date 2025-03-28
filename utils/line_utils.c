@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 int getline_cm(char *line, int maxlen) {
   char *sline = line;
@@ -11,4 +12,23 @@ int getline_cm(char *line, int maxlen) {
   *line = '\0';
 
   return line - sline;
+}
+
+#define MAXLENS 100
+int getlines(char input[], int maxinputlen) {
+  char *inputptr = input;
+  int len, nlines;
+  char line[MAXLENS + 1];
+
+  nlines = 0;
+  while((len = getline_cm(line, MAXLENS)) > 0)
+    if(input + maxinputlen - inputptr - 1 < len)
+      return -1;
+    else {
+      strncpy(inputptr, line, len);
+      inputptr += len;
+      nlines++;
+    }
+  *inputptr = '\0';
+  return nlines;
 }
