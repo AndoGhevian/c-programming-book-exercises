@@ -37,7 +37,7 @@ main(int argc, char *argv[]) {
   char *outptr = output;
 
   int tabstopbrk, tabsize;
-  int col;
+  int col, nblank;
   int is_sequential_tabsize;
 
   int paramlen = argc - 1;
@@ -53,12 +53,14 @@ main(int argc, char *argv[]) {
 
   #define init_tab_scaner()\
   argvptr = argv;\
-  col = 1;\
   tabsize = DEFAULTTABSIZE;\
-  is_sequential_tabsize = 0;
+  is_sequential_tabsize = 0;\
+  
 
   init_tab_scaner();
   c = *inptr;
+  nblank = 0;
+  col = 1;
   while(argvptr - argv + 1 <= argc) {
     if(*++argvptr)
       switch(*argvptr[0]) {
@@ -86,10 +88,20 @@ main(int argc, char *argv[]) {
         case '\n':
           newline = 1;
           init_tab_scaner();
+          nblank = 0;
+          col = 1;
           *outptr++ = '\n';
           break;
         case '\t':
-          #ifndef ENTAB
+          #ifndef DETAB
+          if(nblank)
+            outptr -= nblank;
+          *outptr++ = '\t';
+          if(tabstopbrk != 1)
+            tabstopbrk = (tabstopbrk -= tabsize) > 0 ? tabstopbrk : 0;
+          nblank = 0;
+          col = 1;
+          #else
           do
             *outptr++ = ' ';
           while(--tabstopbrk && ++col <= tabsize);
@@ -97,7 +109,24 @@ main(int argc, char *argv[]) {
           #endif
           break;
         default:
-          #ifndef ENTAB
+          #ifndef DETAB
+          if(c == ' ')
+            nblank++;
+          else
+            nblank = 0;
+          *outptr++ = c;
+
+          if(!--tabstopbrk || col == tabsize) {
+            if(nblank) {
+              outptr -= nblank;
+              *outptr++ = '\t';
+              nblank = 0;
+            }
+            col = 1;
+          }
+          else
+            col++;
+          #else
           tabstopbrk--;
           if(col++ == tabsize)
             col = 1;
@@ -111,6 +140,10 @@ main(int argc, char *argv[]) {
   }
   *outptr = '\0';
 
+  #ifndef DETAB
+  /* for visual representation of terminal tabstops */
+  printf("\n0\t0\t0\t0\t0\t0\t0\t0\t0\t\n");
+  #endif
   printf("%s\n", output);
 
   return 0;
