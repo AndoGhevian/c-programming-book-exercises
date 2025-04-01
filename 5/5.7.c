@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "../utils/line_utils.h"
+#include "../utils/alloc.h"
 
 #define MAXLINES 5000
 #define LINESTORAGE 10
@@ -55,8 +56,6 @@ void swap(char *lineptr[], int i, int j) {
 }
 
 #define MAXLEN 1000
-char *alloc(int);
-void afree(char *);
 
 int readlines(char *lineptr[], char linebuff[], int bufsize, int maxlines) {
   int len, nlines;
@@ -81,22 +80,4 @@ void writelines(char *lineptr[], int nlines) {
   int i;
   for(i = 0; i < nlines; i++)
     printf("%s\n", lineptr[i]);
-}
-
-#define ALLOCSIZE 10000
-char allocbuf[ALLOCSIZE];
-char *allocp = allocbuf;
-
-char *alloc(int size) {
-  if(allocbuf + ALLOCSIZE - allocp >= size)
-    return (allocp += size) - size;
-  else
-    return NULL;
-}
-
-void afree(char *p) {
-  if(p >= allocbuf && p < allocbuf + ALLOCSIZE)
-    allocp = p;
-  if(p == NULL)
-    allocp = allocbuf;
 }
