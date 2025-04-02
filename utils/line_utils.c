@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
+/* second argument declares string maximum length (null character not included)*/
 int getline_cm(char *line, int maxlen) {
   char *sline = line;
   int c, len = 0;
 
-  while(line - sline <= maxlen && (c = getchar()) != '\n' && c != EOF)
+  while(line - sline < maxlen && (c = getchar()) != '\n' && c != EOF)
     *line++ = c;
   if(c == '\n')
     *line++ = '\n';

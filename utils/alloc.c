@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-#define ALLOCSIZE 10000
+/* 100 MB characters (byte per char) */
+#define ALLOCSIZE 100000
 char allocbuf[ALLOCSIZE];
 char *allocp = allocbuf;
 
