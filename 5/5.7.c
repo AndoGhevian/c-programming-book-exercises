@@ -9,8 +9,8 @@
 char *lineptr[MAXLINES];
 char linebuff[LINESTORAGE];
 
-int readlines(char *lineptr[], char linebuff[], int bufsize, int nlines);
-void writelines(char *lineptr[], int nlines);
+int readlines_local(char *lineptr[], char linebuff[], int bufsize, int nlines);
+void writelines_local(char *lineptr[], int nlines);
 
 void qsort(char *lineptr[], int left, int right);
 
@@ -18,10 +18,10 @@ main() {
   int nlines;
   /* printf("%d %d %d", '0' > '1', '1' > '2', '1' > 'a'); */
 
-  if((nlines = readlines(lineptr, linebuff, LINESTORAGE, MAXLINES)) >= 0) {
+  if((nlines = readlines_local(lineptr, linebuff, LINESTORAGE, MAXLINES)) >= 0) {
     printf("\n");
     qsort(lineptr, 0, nlines - 1);
-    writelines(lineptr, nlines);
+    writelines_local(lineptr, nlines);
     return 0;
   } else {
     printf("error: input is too big to sort.\n");
@@ -57,7 +57,7 @@ void swap(char *lineptr[], int i, int j) {
 
 #define MAXLEN 1000
 
-int readlines(char *lineptr[], char linebuff[], int bufsize, int maxlines) {
+int readlines_local(char *lineptr[], char linebuff[], int bufsize, int maxlines) {
   int len, nlines;
   char *p = linebuff, line[MAXLEN];
 
@@ -76,7 +76,7 @@ int readlines(char *lineptr[], char linebuff[], int bufsize, int maxlines) {
   return nlines;
 }
 
-void writelines(char *lineptr[], int nlines) {
+void writelines_local(char *lineptr[], int nlines) {
   int i;
   for(i = 0; i < nlines; i++)
     printf("%s\n", lineptr[i]);

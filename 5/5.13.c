@@ -10,9 +10,9 @@
 int optparamtype(char *param);
 
 #define MAXLINESNUMBER 4
-int readnlines(char *lineptr[], int n);
+int readpagelines(char *lineptr[], int n);
 
-void writelines(char const * const lineptr[], int startline_index);
+void writepagelines(char const * const lineptr[], int startline_index);
 
 main(int argc, char *argv[]) {
   int maxlines = MAXLINESNUMBER;
@@ -38,14 +38,14 @@ main(int argc, char *argv[]) {
 
   maxlines = maxlines ? maxlines : MAXLINESNUMBER;
 
-  while(prevnlines = nlines, nlines = readnlines(lineptr, maxlines))
+  while(prevnlines = nlines, nlines = readpagelines(lineptr, maxlines))
     if(nlines == -1) {
       printf("no enough space to hold %d lines of strings in memory", maxlines);
       return -1;
     }
 
   printf("\n");
-  writelines((char const *const *)lineptr, prevnlines);
+  writepagelines((char const *const *)lineptr, prevnlines);
 
   /* free readlines allocated storag */
   if(*lineptr)
@@ -69,7 +69,7 @@ int optparamtype(char *param) {
 }
 
 #define MAXLEN 1000
-int readnlines(char *lineptr[], int maxlines) {
+int readpagelines(char *lineptr[], int maxlines) {
   int len, nlines;
   char *p, line[MAXLEN + 1];
 
@@ -90,7 +90,7 @@ int readnlines(char *lineptr[], int maxlines) {
 }
 
 /* lineptr must have last element 0 pointer */
-void writelines(const char * const lineptr[], int startline_index) {
+void writepagelines(const char * const lineptr[], int startline_index) {
   char const * const *lptr = lineptr + startline_index;
 
   while(*lptr)
