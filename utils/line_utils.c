@@ -4,7 +4,7 @@
 /* second argument declares string maximum length (null character not included)*/
 int getline_cm(char *line, int maxlen) {
   char *sline = line;
-  int c, len = 0;
+  int c;
 
   while(line - sline < maxlen && (c = getchar()) != '\n' && c != EOF)
     *line++ = c;
