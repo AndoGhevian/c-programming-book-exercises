@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "../utils/alloc.h"
-
-#define MAXLENS 100
+#include "line_utils.h"
+#include "alloc.h"
 
 /* second argument declares string maximum length (null character not included)*/
 int getline_cm(char *line, int maxlen) {
@@ -21,10 +20,10 @@ int getline_cm(char *line, int maxlen) {
 int getlines(char input[], int maxinputlen) {
   char *inputptr = input;
   int len, nlines;
-  char line[MAXLENS + 1];
+  char line[MAX_LINESTRLENS + 1];
 
   nlines = 0;
-  while((len = getline_cm(line, MAXLENS)) > 0)
+  while((len = getline_cm(line, MAX_LINESTRLENS)) > 0)
     if(input + maxinputlen - inputptr - 1 < len)
       return -1;
     else {
@@ -43,10 +42,10 @@ int getlines(char input[], int maxinputlen) {
   if you read more than maximum count it crashes. 
 */
 int readlines(char *lineptr[], int maxlines) {
-  char (*linestorageptr), line[MAXLENS + 1];
+  char (*linestorageptr), line[MAX_LINESTRLENS + 1];
   int nlines = 0, len;
 
-  while(++nlines <= maxlines && (len = getline_cm(line, MAXLENS))) {
+  while(++nlines <= maxlines && (len = getline_cm(line, MAX_LINESTRLENS))) {
     if(line[len - 1] == '\n')
       line[--len] = '\0';
 
