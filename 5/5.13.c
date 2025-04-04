@@ -79,7 +79,9 @@ int readpagelines(char *lineptr[], int maxlines) {
       if(p = alloc(MAXLEN + 1))
         *lineptr = p;
       else {
-        afree(*(lineptr - nlines));
+        int nclear = nlines;
+        while(nclear--)
+          afree(*--lineptr);
         return -(nlines + 1);
       }
     if(line[len - 1] == '\n')
