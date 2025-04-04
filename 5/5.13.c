@@ -39,8 +39,8 @@ main(int argc, char *argv[]) {
   maxlines = maxlines ? maxlines : MAXLINESNUMBER;
 
   while(prevnlines = nlines, nlines = readpagelines(lineptr, maxlines))
-    if(nlines == -1) {
-      printf("no enough space to hold %d lines of strings in memory", maxlines);
+    if(nlines < 0) {
+      printf("no enough space to hold %d lines of strings in memory\n", -nlines);
       return -1;
     }
 
@@ -78,8 +78,10 @@ int readpagelines(char *lineptr[], int maxlines) {
     if(!*lineptr)
       if(p = alloc(MAXLEN + 1))
         *lineptr = p;
-      else
-        return -1;
+      else {
+        afree(*(lineptr - nlines));
+        return -(nlines + 1);
+      }
     if(line[len - 1] == '\n')
       line[--len] = '\0';
     strcpy(*lineptr++, line);
