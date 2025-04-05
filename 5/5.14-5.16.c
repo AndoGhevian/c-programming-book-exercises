@@ -6,6 +6,7 @@
 #include "../utils/alloc.h"
 
 int numcomp(char *s1, char *s2);
+int dictcomp(char *s1, char *s2);
 
 #define MAX_TRANSFORMLINE MAX_LINESTRLENS * 2
 char *t_tolower(char *s);
@@ -35,12 +36,14 @@ main(int argc, char *argv[]) {
     if((*argv)[0] == '-') {
       if(strstr(*argv, "n"))
         configcompare((int (*)(void *, void *))numcomp);
+      else if(strstr(*argv, "d"))
+        configcompare((int (*)(void *, void *))dictcomp);
+
       if(strstr(*argv, "r"))
         configorder(-1);
       if(strstr(*argv, "f"))
         caseinsense = 1;
     }
-    
 
   if((nlines = readlines(lineptr, MAXLINES)) < 0) {
     printf("no enough memory space to store input\n");
@@ -52,6 +55,7 @@ main(int argc, char *argv[]) {
     transmap[i] = translineptr[i] = strcpy(alloc(MAX_TRANSFORMLINE), lineptr[i]);
     if(caseinsense)
       t_tolower(translineptr[i]);
+    /* here other character transformations */
   }
 
   qsort_excercise((void **)translineptr, 0, nlines - 1, compare);
@@ -91,6 +95,32 @@ int numcomp(char *s1, char *s2) {
     return 1;
   else
     return 0;
+}
+
+int dictcomp(char *s1, char *s2) {
+  int comp;
+
+  do {
+    while(*s1)
+      if(isalnum(*s1) || *s1 == ' ')
+        break;
+      else
+        s1++;
+
+    while(*s2)
+      if(isalnum(*s2) || *s2 == ' ')
+        break;
+      else
+        s2++;
+
+    comp = *s1 - *s2;
+    if(comp)
+      return comp;
+    else if(s1 == 0 && s2 == 0)
+      return 0;
+  } while(*++s1 && *++s2);
+
+  return *s1 - *s2;
 }
 
 /* <<< compare functions <<< */
