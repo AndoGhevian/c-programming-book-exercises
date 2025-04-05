@@ -20,9 +20,9 @@ main(int argc, char *argv[]) {
   configorder(1);
 
   while(*++argv)
-    if(strcmp(*argv, "-n"))
+    if(strcmp(*argv, "-n") == 0)
       configcompare((int (*)(void *, void *))numcomp);
-    else if(strcmp(*argv, "-r"))
+    else if(strcmp(*argv, "-r") == 0)
       configorder(-1);
 
   if((nlines = readlines(lineptr, MAXLINES)) < 0) {
