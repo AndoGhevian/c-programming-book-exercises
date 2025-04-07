@@ -5,38 +5,42 @@
 #include "../utils/line_utils.h"
 #include "../utils/alloc.h"
 
-int caseinsense = 0;
 int numcomp(char *s1, char *s2);
 int dictcomp(char *s1, char *s2);
-int strcomp(char *s1, char *s2);
+
+#define MAX_TRANSFORMLINE MAX_LINESTRLENS * 2
+char *t_tolower(char *s);
 
 /* note, after quick sort, equal elements are shuffled */
 void qsort_excercise(void *v[], int left, int right, int (*comp)(void *, void *));
 
-int reverse = 1; /* inc: >= 0, dec: < 0 */
-int (*comp)(void *e1, void *e2);
+void configcompare(int (void *, void *));
+void configorder(int o);
 int compare(void *e1, void *e2);
 
 #define MAXLINES 100
 int nlines = 0;
 char *lineptr[MAXLINES];
+char *translineptr[MAXLINES];
+
+char *transmap[MAXLINES];
+char *linemap[MAXLINES];
+int linesbymapcomp(char *l1, char *l2);
 
 main(int argc, char *argv[]) {
-  extern int caseinsense, reverse;
-  extern int (*comp)(void *, void *);
-
-  int i;
-  comp = (int (*)(void *, void *))strcomp;
+  int i, caseinsense = 0;
+  configcompare((int (*)(void *, void *))strcmp);
+  configorder(1);
 
   while(*++argv)
     if((*argv)[0] == '-') {
       if(strstr(*argv, "n"))
-        comp = (int (*)(void *, void *))numcomp;
+        configcompare((int (*)(void *, void *))numcomp);
       else if(strstr(*argv, "d"))
-        comp = (int (*)(void *, void *))dictcomp;
+        configcompare((int (*)(void *, void *))dictcomp);
 
       if(strstr(*argv, "r"))
-        reverse = -1;
+        configorder(-1);
       if(strstr(*argv, "f"))
         caseinsense = 1;
     }
@@ -46,7 +50,16 @@ main(int argc, char *argv[]) {
     return -1;
   }
 
-  qsort_excercise((void **)lineptr, 0, nlines - 1, compare);
+  for(i = 0; i < nlines; i++) {
+    linemap[i] = lineptr[i];
+    transmap[i] = translineptr[i] = strcpy(alloc(MAX_TRANSFORMLINE), lineptr[i]);
+    if(caseinsense)
+      t_tolower(translineptr[i]);
+    /* here other character transformations */
+  }
+
+  qsort_excercise((void **)translineptr, 0, nlines - 1, compare);
+  qsort_excercise((void **)lineptr, 0, nlines - 1, (int (*)(void *, void *))linesbymapcomp);
 
   printf("\n");
   writelines(lineptr, nlines);
@@ -55,20 +68,20 @@ main(int argc, char *argv[]) {
 }
 
 
-/* >>> compare functions >>> */
+/* >>> transform functions */
 
-int strcomp(char *s1, char *s2) {
-  extern int caseinsense;
-  int cmp;
-
-  while(*s1 && *s2)
-    if(cmp = caseinsense ?
-        tolower(*s1++) - tolower(*s2++)
-        : *s1++ - *s2++)
-      return cmp;
-
-  return *s1 - *s2;
+char *t_tolower(char *s) {
+  char *start_s = s;
+  int c;
+  while(c = *s)
+    *s++ = tolower(c);
+  return start_s;
 }
+
+/* <<< transform functions */
+
+
+/* >>> compare functions >>> */
 
 int numcomp(char *s1, char *s2) {
   double v1, v2;
@@ -85,8 +98,7 @@ int numcomp(char *s1, char *s2) {
 }
 
 int dictcomp(char *s1, char *s2) {
-  extern int caseinsense;
-  int comp, c1, c2;
+  int comp;
 
   do {
     while(*s1)
@@ -101,7 +113,7 @@ int dictcomp(char *s1, char *s2) {
       else
         s2++;
 
-    comp = caseinsense ? tolower(*s1) - tolower(*s2) : *s1 - *s2;
+    comp = *s1 - *s2;
     if(comp)
       return comp;
     else if(s1 == 0 && s2 == 0)
@@ -114,13 +126,21 @@ int dictcomp(char *s1, char *s2) {
 /* <<< compare functions <<< */
 
 
+int (*comp)(void *e1, void *e2);
+int reverse = 1; /* inc: 1, dec: -1 */
 int compare(void *e1, void *e2) {
-  extern int reverse;
-  extern int (*comp)(void *e1, void *e2);
-
   if(!comp)
     return 0;
   return reverse * comp(e1, e2);
+}
+
+void configcompare(int c(void *, void *)) {
+  comp = c;
+}
+
+/* < 0 dec, >= 0 inc */
+void configorder(int o) {
+  reverse = o < 0 ? -1 : 1;
 }
 
 void qsort_excercise(void *v[], int left, int right, int comp(void *, void *)) {
@@ -144,4 +164,37 @@ void swap(void *v[], int i, int j) {
 
   v[i] = v[j];
   v[j] = temp;
+}
+
+int linesbymapcomp(char *l1, char *l2) {
+  extern char *translineptr[MAXLINES];
+  extern char *transmap[MAXLINES];
+  extern char *linemap[MAXLINES];
+
+  int i, t1, t2;
+  char *tptr1, *tptr2;
+
+  t1 = t2 = -1;
+  for(i = 0; i < MAXLINES && linemap[i]; i++)
+    if(t1 != -1 && t2 != -1)
+      break;
+    else {
+      if(linemap[i] == l1)
+        t1 = i;
+      if(linemap[i] == l2)
+        t2 = i;
+    }
+
+  tptr1 = transmap[t1];
+  tptr2 = transmap[t2];
+
+  if(tptr1 == tptr2)
+    return 0;
+
+  for(i = 0; translineptr[i] != tptr1 && translineptr[i] != tptr2; i++);
+
+  if(translineptr[i] == tptr1)
+    return -1;
+  else
+    return 1;
 }
