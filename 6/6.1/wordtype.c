@@ -4,7 +4,7 @@
 #include "charbuf.h"
 #include "wordtype.h"
 
-struct {char *typeword; int type;} typetab[] = {
+static struct {char *typeword; int type;} typetab[] = {
   "\"", STRING_LITERAL,
   "/*", COMMENT,
   "#if", CONTROL_PREPROCESSOR,
@@ -12,21 +12,21 @@ struct {char *typeword; int type;} typetab[] = {
   "#ifndef", CONTROL_PREPROCESSOR,
   "#define", PREPROCESSOR,
 };
-#define NTYPEWORD sizeof typetab
+#define NTYPEWORD sizeof typetab / sizeof typetab[0]
 
 int getwordtype(void) {
   char *typeword[NTYPEWORD], word[MAXTYPEWORD], *w = word;
-  int i, nt;
+  int i, nt, found;
 
   for(i = 0; i < NTYPEWORD; i++)
     typeword[i] = typetab[i].typeword;
 
+  found = 0;
   nt = NTYPEWORD;
-  while(w - word < MAXTYPEWORD - 1 && nt && (*w++ = getch()) != EOF)
+  for(;!found && w - word < MAXTYPEWORD - 1 && nt && (*w = getch()) != EOF; w++)
     for(i = 0; i < NTYPEWORD; i++)
       if(typeword[i])
         if(*typeword[i] == '\0') {
-            /* check preprocessors end with space */
             if(!strcmp(typetab[i].typeword, "#if")
             || !strcmp(typetab[i].typeword, "#ifdef")
             || !strcmp(typetab[i].typeword, "#ifndef")
@@ -38,15 +38,18 @@ int getwordtype(void) {
               continue;
             }
 
-          *w++ = '\0';
-          ungetstr(word);
-          return typetab[i].type;
+          found = 1;
+          break;
         } else if(*typeword[i]++ != *w) {
           typeword[i] = NULL;
           nt--;
         }
-  *w++ = '\0';
+
+  *w = '\0';
   ungetstr(word);
+  if(found)
+    return typetab[i].type;
+
   if(isalpha(*word) || *word == '_')
     return TOKEN;
   return UNKNOWN;

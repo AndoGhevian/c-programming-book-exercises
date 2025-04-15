@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "charbuf.h"
 
-char chstore[MAXCHSTORE];
-char *chptr = chstore;
+static char chstore[MAXCHSTORE];
+static char *chptr = chstore;
 
 int getch(void) {
   if(chptr > chstore)

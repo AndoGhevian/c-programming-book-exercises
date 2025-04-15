@@ -21,7 +21,7 @@ int getword(char *word, int lim) {
   w = word;
   switch(type = getwordtype()) {
     case TOKEN:
-      while(--lim > 0 && isalnum(c = getch()))
+      while(--lim > 0 && isalnum(c = getch()) || c == '_')
         *w++ = c;
       *w = '\0';
 
@@ -35,8 +35,9 @@ int getword(char *word, int lim) {
       while(--lim > 0 && (c = getch()) != EOF) {
         *w++ = c;
         if(w - word >= endlen)
-          if(isnw = strncmp(w - endlen, ends, endlen))
+          if(isnw = !strncmp(w - endlen, ends, endlen)) {
             break;
+          }
       }
       *w = '\0';
       break;
@@ -46,14 +47,16 @@ int getword(char *word, int lim) {
       while(--lim > 0 && (c = getch()) != EOF) {
         *w++ = c;
         if(w - word >= endlen)
-          if(isnw = strncmp(w - endlen, ends, endlen))
-            break;
+          if(isnw = !strncmp(w - endlen, ends, endlen))
+            /* check only space after end */
+            if((c = getch()) != EOF && !(isnw = isspace(c))) {
+              ungetch(c);
+              continue;
+            }
+            else
+              break;
       }
       *w = '\0';
-
-      /* check only space after end */
-      if(isnw && (c = getch()) != EOF)
-        isnw = isspace(c), ungetch(c);
 
       /* check only space before end */
       if(isnw && w - word > endlen)

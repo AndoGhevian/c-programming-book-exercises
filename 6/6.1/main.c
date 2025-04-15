@@ -4,7 +4,7 @@
 #include "../../utils/alloc.h"
 
 /* tables must be sorted in increasing order to apply binary search */
-struct key {
+static struct key {
   char *keyword;
   int count;
 } keytab[] = {
@@ -15,7 +15,7 @@ struct key {
 };
 
 #define MAXCODELINES 100
-struct code {
+static struct code {
   char *typeword;
   char *lineptr[MAXCODELINES];
   int count;
@@ -44,6 +44,8 @@ int getword(char *, int);
 /* 2 binsearch implementations needed */
 int binsrch_key(char *, struct key[], int);
 int binsrch_code(char *, struct code[], int);
+
+void writelines(char **, int);
 
 #define MAXWORD 100
 main() {
@@ -74,10 +76,20 @@ main() {
       if(i < 0)
         continue;
 
-      code = alloc(strlen(word));
+      code = alloc(strlen(word) + 1);
       if(++codetab[i].count <= MAXCODELINES && code)
         codetab[i].lineptr[codetab[i].count - 1] = strcpy(code, word);
     }
+
+  printf("\nkeywords found\n\n");
+  for(i = 0; i < NKEYS; i++)
+    printf("keyword: %s, count: %d\n", keytab[i].keyword, keytab[i].count);
+
+  printf("\ncode structures found\n\n");
+  for(i = 0; i < NCODE; i++) {
+    printf("code structure %s, count: %d\n", codetab[i].typeword, codetab[i].count);
+    writelines(codetab[i].lineptr, MAXCODELINES);
+  }
 }
 
 int binsrch_key(char *key, struct key tab[], int lim) {
@@ -110,4 +122,9 @@ int binsrch_code(char *type, struct code tab[], int lim) {
     else
       return mid;
   return -1;
+}
+
+void writelines(char **lineptr, int maxlines) {
+  while(maxlines-- > 0 && *lineptr)
+    printf("%s\n", *lineptr++);
 }
