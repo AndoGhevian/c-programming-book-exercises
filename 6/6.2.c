@@ -24,14 +24,14 @@
     width less than given minimum of 6 are put at the
     left of the sorted list.
 
-    when uniquely printing grouped words, solution
-    will be more optimal using binary tree.
-    1. array additionaly need on each print do a single comparison
-      to previous word to check that words are not equal.
-    2. for binary tree we will already omit existing words.
   2. solve the problem naturaly, applying grouping by provided
-  subword. In case of array this solution complexity will be greater
-  than for binary tree for the same reasons.
+  subword.
+
+  when uniquely printing grouped words, both designs
+  will be more optimal using binary tree.
+  1. array additionaly need on each print do a single comparison
+    to previous word to check that words are not equal.
+  2. for binary tree we will already omit existing words.
 */
 #include <stdio.h>
 #include <string.h>
