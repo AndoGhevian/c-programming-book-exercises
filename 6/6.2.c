@@ -34,8 +34,98 @@
   2. for binary tree we will already omit existing words.
 */
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
+#include "../utils/char_utils.h"
 
-main() {
+/* natural solution */
+struct wordgroup {
+  char *name;
+  struct wordgroup *subgroup;
+  struct wordgroup *left;
+  struct wordgroup *right;
+};
+
+struct wordgroup *addword(struct wordgroup *root, char *, int);
+void groupedprint(struct wordgroup *root);
+int getword(char *, int);
+
+#define MAXWORD 1000
+
+main(int argc, char *argv[]) {
+  int gname_w;
+  char word[MAXWORD + 1];
+  struct wordgroup *root = NULL;
+
+  gname_w = argc > 1 ? atoi(argv[1]) : 0;
+  while(getword(word, MAXWORD) != EOF)
+    if(isalpha(word[0]))
+      root = addword(root, word, gname_w);
+
+  groupedprint(root);
   return 0;
+}
+
+/*
+  design considerations.
+  we have 2 good solutions:
+  1. if we strictly no interested in some types of
+    words, we can simply bypass them.
+  2. return "/" and "\"" characters appropriately
+    for precise task requirements.
+
+  i decide to bypass comments and strings.
+*/
+int getword(char *word, int lim) {
+  int c, endc, c2;
+
+  if(lim < 2) {
+    /* no sense to continue reading characters */
+    printf("limit of the word must be at least 2 characters");
+    return EOF;
+  }
+
+  while(isspace(c = getch()));
+
+  endc = c;
+  while(c == '/' || c == '\"') {
+    if(c == '/') {
+      if((c = getch()) != '*') {
+        ungetch(c);
+        endc = '/';
+        break;
+      }
+
+      c = getch();
+      do {
+        c2 = c;
+        c = getch();
+        if(c2 == EOF || c == EOF)
+          break;
+      } while(c2 != '*' || c != '/');
+    } else if(c == '\"')
+      if((c = getch()) != '\"');
+        do {
+          c2 = c;
+          c = getch();
+          if(c2 == EOF || c == EOF)
+            break;
+        } while(c2 == '\\' || c != '\"');
+
+    while(isspace(c = getch()));
+    endc = c;
+  }
+
+  if(endc == EOF)
+    return EOF;
+
+  *word++ = endc;
+  if(isalpha(endc)) {
+    while(--lim && isalnum(*word++ = getch()));
+    if(lim)
+      ungetch(*word);
+  }
+  *word = '\0';
+  return endc;
 }
