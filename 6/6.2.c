@@ -47,24 +47,90 @@ struct wordgroup {
   struct wordgroup *right;
 };
 
-struct wordgroup *addword(struct wordgroup *root, char *, int);
-void groupedprint(struct wordgroup *root);
+struct wordgroup *addword(struct wordgroup *, char *, int);
+void groupedprint(struct wordgroup *, char *, int , int);
 int getword(char *, int);
 
 #define MAXWORD 1000
 
 main(int argc, char *argv[]) {
-  int gname_w;
+  int gw;
   char word[MAXWORD + 1];
   struct wordgroup *root = NULL;
 
-  gname_w = argc > 1 ? atoi(argv[1]) : 0;
+  gw = argc > 1 ? atoi(argv[1]) : 0;
+
+  if(gw > MAXWORD - 1) {
+    printf("variable name maximum width is %d (0 means full word)\n", MAXWORD - 1);
+    return -1;
+  }
+
   while(getword(word, MAXWORD) != EOF)
     if(isalpha(word[0]))
-      root = addword(root, word, gname_w);
+      root = addword(root, word, gw);
 
-  groupedprint(root);
+  printf("Printing:\n");
+  groupedprint(root, "", 0, gw);
   return 0;
+}
+
+struct wordgroup *addword(struct wordgroup *root, char *word, int maxwidth) {
+  int comp, width, wrdw, issmall;
+
+  if(!*word)
+    return root;
+
+  wrdw = strlen(word);
+  issmall = maxwidth && wrdw < maxwidth;
+  width = maxwidth ? maxwidth : wrdw;
+  if(!root) {
+    root = malloc(sizeof(struct wordgroup));
+    root->left = root->right = NULL;
+    root->name = malloc(width + 1);
+    strncpy(root->name, word, width);
+    root->name[width] = '\0';
+
+    root->subgroup = addword(root->subgroup, word + width, 0);
+    return root;
+  }
+
+  if(issmall)
+    /* collect all small words on the left side */
+    root->left = addword(root->left, word, maxwidth);
+  else if((comp = strncmp(word, root->name, width)) < 0)
+    root->left = addword(root->left, word, maxwidth);
+  else if(comp > 0)
+    root->right = addword(root->right, word, maxwidth);
+  else
+    root->subgroup = addword(root->subgroup, word + width, 0);
+
+  return root;
+}
+
+void groupedprint(struct wordgroup *group, char *prefix, int tabn, int minwidth) {
+  int i;
+  char *append_pfx = NULL;
+
+  if(!group)
+    return;
+  if(minwidth && strlen(group->name) < minwidth)
+    return;
+
+  groupedprint(group->left, prefix, tabn, minwidth);
+
+  for(i = 0; i < tabn; i++)
+    putchar('\t');
+  printf("%s%s\n", prefix, group->name);
+
+  append_pfx = malloc(strlen(prefix) + strlen(group->name) + 1);
+  *append_pfx = '\0';
+  strcat(append_pfx, prefix);
+  strcat(append_pfx, group->name);
+
+  groupedprint(group->subgroup, append_pfx, tabn + 1, 0);
+  free(append_pfx);
+
+  groupedprint(group->right, prefix, tabn, minwidth);
 }
 
 /*
@@ -105,7 +171,7 @@ int getword(char *word, int lim) {
           break;
       } while(c2 != '*' || c != '/');
     } else if(c == '\"')
-      if((c = getch()) != '\"');
+      if((c = getch()) != '\"')
         do {
           c2 = c;
           c = getch();
@@ -124,7 +190,7 @@ int getword(char *word, int lim) {
   if(isalpha(endc)) {
     while(--lim && isalnum(*word++ = getch()));
     if(lim)
-      ungetch(*word);
+      ungetch(*--word);
   }
   *word = '\0';
   return endc;
