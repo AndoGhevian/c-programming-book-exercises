@@ -20,29 +20,12 @@
 
 #include <stdio.h>
 #include <ctype.h>
-#include "../utils/char_utils.h"
+#include "tokenizer.h"
+#include "../../utils/char_utils.h"
 
 struct nlist;
 struct codeblock;
 
-/* supported preprocessor directives */
-enum {
-  DEFINE,
-  UNDEF
-};
-
-enum {
-  STRING = EOF - 1000,
-  COMMENT,
-  NAME,
-  NUMBER,
-};
-
-/* returns blanks count or EOF */
-int getblank(char *, int);
-
-/* read token skips space characters (including newline) */
-int gettoken(char *, int);
 struct nlist *lookup(char *);
 struct nlist *install(char *, char *);
 struct nlist *uninstall(char *);
@@ -51,8 +34,6 @@ struct codeblock *addcodetok(struct codeblock *, char *);
 void printcode(struct codeblock *);
 
 int getdirective(void);
-/* 1 if invalid, 0 if valid symbol identifier or EOF */
-int getsymbolicname(char *, int);
 
 #define MAXTOKEN 1000
 char token[MAXTOKEN];
@@ -127,31 +108,6 @@ main() {
   return 0;
 }
 
-#include <stdio.h>
-#include <ctype.h>
-#include "../utils/char_utils.h"
-
-int gettoken(char *, int);
-int getsymbolicname(char *name, int lim) {
-  int c, ttype;
-  while(isblank(c = getch()));
-  if(c == '\n') {
-    printf("expected an identifier\n");
-    return 1;
-  }
-  ungetch(c);
-
-  while((ttype = gettoken(name, lim)) == COMMENT);
-  if(ttype == EOF)
-    return EOF;
-  if(ttype != NAME) {
-    printf("expected an identifier\n");
-    return 1;
-  }
-
-  return 0;
-}
-
 struct nlist {
   struct nlist *next;
   char *name;
@@ -164,13 +120,13 @@ struct codeblock {
 };
 
 #include <stdio.h>
+#include "keyval.h"
+#include "tokenizer.h"
 
 #define DIRNOTFOUND EOF - 1
 
-int gettoken(char *, int);
-
-/* struct nameval and binsearch can be separated */
-struct nameval { char *name; int type; } directives[] = {
+/* inc sorted on key */
+struct keyval directives[] = {
   "define", DEFINE,
   "endif", DIRNOTFOUND,
   "if", DIRNOTFOUND,
@@ -179,35 +135,16 @@ struct nameval { char *name; int type; } directives[] = {
 
 #define NDIR sizeof directives / sizeof directives[0]
 
-char directive[MAXTOKEN];
-
-struct nameval *binsrch_nameval(char *, struct nameval *, int);
+char dirstr[MAXTOKEN];
 
 int getdirective(void) {
   int i;
+  struct keyval *directive = NULL;
 
-  if(gettoken(directive, NDIR) == EOF)
+  if(gettoken(dirstr, NDIR) == EOF)
     return EOF;
 
-  if(i = binsrch_nameval(directive, directives, NDIR) > 0)
-    return directives[i].type;
+  if(directive = binsrch_keyval(dirstr, directives, NDIR))
+    return directive->value;
   return DIRNOTFOUND;
-}
-
-struct nameval *binsrch_nameval(char *s, struct nameval *v, int n) {
-  int comp;
-
-  struct nameval *mid;
-  struct nameval *left = v;
-  struct nameval *right = &v[n];
-
-  while(left < right)
-    if((comp = strcmp(s, (mid = left + (right - left) / 2)->name)) < 0)
-      right = mid;
-    else if(comp > 0)
-      left = mid + 1;
-    else
-      mid;
-
-    return NULL;
 }
