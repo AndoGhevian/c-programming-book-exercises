@@ -19,22 +19,136 @@
 */
 
 #include <stdio.h>
+#include <ctype.h>
+#include "../utils/char_utils.h"
+
 struct nlist;
+struct codeblock;
+
+/* supported preprocessor directives */
+enum {
+  DEFINE,
+  UNDEF
+};
 
 enum {
   STRING = EOF - 1000,
   COMMENT,
-  DEFINE,
   NAME,
   NUMBER,
-  UNKNOWN
 };
 
-int gettoken(void);
+/* returns blanks count or EOF */
+int getblank(char *, int);
+
+/* read token skips space characters (including newline) */
+int gettoken(char *, int);
 struct nlist *lookup(char *);
 struct nlist *install(char *, char *);
+struct nlist *uninstall(char *);
+
+struct codeblock *addcodetok(struct codeblock *, char *);
+void printcode(struct codeblock *);
+
+int getdirective(void);
+/* 1 if invalid, 0 if valid symbol identifier or EOF */
+int getsymbolicname(char *, int);
+
+#define MAXTOKEN 1000
+char token[MAXTOKEN];
+
+#define MAXREPLTXT 10000
+char symbolicname[MAXTOKEN];
+char replacetxt[MAXREPLTXT];
+char *replacetxtptr = replacetxt;
 
 main() {
+  int c, ttype, lim, isesc;
+  struct codeblock *codetext;
+
+  while((c = getch()) != EOF)
+    if(c == '#')
+      switch(getdirective()) {
+        case DEFINE:
+          if(getsymbolicname(symbolicname, MAXTOKEN))
+            break;
+
+          while(isblank(c = getch()));
+          ungetch(c);
+
+          isesc = 0;
+          lim = MAXREPLTXT;
+          replacetxtptr = replacetxt;
+          while(lim-- && (c = getch()) != EOF && (c != '\n' || isesc))
+            switch(c) {
+              case '\n':
+                /* (replacetxtptr - 1) is a valid pointer because
+                  at this point previous character must be '\' */
+                *(replacetxtptr - 1) = ' ';
+                isesc = 0;
+                break;
+              case '\\':
+                isesc = 1;
+                /* intentional no-break */
+              default:
+                *replacetxtptr++ = c;
+                break;
+            }
+          *replacetxtptr = '\0';
+          if(c != EOF)
+            install(symbolicname, replacetxt);
+          break;
+        case UNDEF:
+          if(getsymbolicname(symbolicname, MAXTOKEN))
+            break;
+          uninstall(symbolicname);
+          break;
+        default:
+          break;
+      }
+    else {
+      ungetch(c);
+      if(getblank(token, MAXTOKEN) > 0)
+        codetext = addcodetok(codetext, token);
+      switch(gettoken(token, MAXTOKEN)) {
+        case COMMENT:
+        case EOF:
+          break;
+        case NAME:
+        case STRING:
+        case NUMBER:
+        default:
+          codetext = addcodetok(codetext, token);
+          break;
+      }
+    }
+
+  printcode(codetext);
+  return 0;
+}
+
+#include <stdio.h>
+#include <ctype.h>
+#include "../utils/char_utils.h"
+
+int gettoken(char *, int);
+int getsymbolicname(char *name, int lim) {
+  int c, ttype;
+  while(isblank(c = getch()));
+  if(c == '\n') {
+    printf("expected an identifier\n");
+    return 1;
+  }
+  ungetch(c);
+
+  while((ttype = gettoken(name, lim)) == COMMENT);
+  if(ttype == EOF)
+    return EOF;
+  if(ttype != NAME) {
+    printf("expected an identifier\n");
+    return 1;
+  }
+
   return 0;
 }
 
@@ -42,4 +156,9 @@ struct nlist {
   struct nlist *next;
   char *name;
   char *defn;
+};
+
+struct codeblock {
+  struct codeblock *next;
+  char *token;
 };
