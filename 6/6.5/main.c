@@ -60,7 +60,7 @@ main() {
           isesc = 0;
           lim = MAXREPLTXT;
           replacetxtptr = replacetxt;
-          while(lim-- && (c = getch()) != EOF && (c != '\n' || isesc))
+          while(--lim && (c = getch()) != EOF && (c != '\n' || isesc))
             switch(c) {
               case '\n':
                 /* (replacetxtptr - 1) is a valid pointer because
