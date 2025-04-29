@@ -20,8 +20,11 @@ enum {
 /* returns blanks count or EOF */
 int getblank(char *, int);
 
-/* read next token, skips space characters (including newline)
-  returns supported token type, encountered character or EOF */
+/* read next token, skips space characters (including newline).
+  returns supported token type, encountered character or EOF.
+  note: limit of character storage must be at least 4 (for comments),
+  in case if no end of comment or string reached, it will early close
+  to not lose any input */
 int gettoken(char *, int);
 
 /* 1 if invalid, 0 if valid symbol identifier or EOF */
