@@ -162,3 +162,52 @@ struct codeblock {
   struct codeblock *next;
   char *token;
 };
+
+#include <stdio.h>
+
+#define DIRNOTFOUND EOF - 1
+
+int gettoken(char *, int);
+
+/* struct nameval and binsearch can be separated */
+struct nameval { char *name; int type; } directives[] = {
+  "define", DEFINE,
+  "endif", DIRNOTFOUND,
+  "if", DIRNOTFOUND,
+  "undef", UNDEF
+};
+
+#define NDIR sizeof directives / sizeof directives[0]
+
+char directive[MAXTOKEN];
+
+struct nameval *binsrch_nameval(char *, struct nameval *, int);
+
+int getdirective(void) {
+  int i;
+
+  if(gettoken(directive, NDIR) == EOF)
+    return EOF;
+
+  if(i = binsrch_nameval(directive, directives, NDIR) > 0)
+    return directives[i].type;
+  return DIRNOTFOUND;
+}
+
+struct nameval *binsrch_nameval(char *s, struct nameval *v, int n) {
+  int comp;
+
+  struct nameval *mid;
+  struct nameval *left = v;
+  struct nameval *right = &v[n];
+
+  while(left < right)
+    if((comp = strcmp(s, (mid = left + (right - left) / 2)->name)) < 0)
+      right = mid;
+    else if(comp > 0)
+      left = mid + 1;
+    else
+      mid;
+
+    return NULL;
+}
