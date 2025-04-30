@@ -17,8 +17,8 @@ enum {
   NUMBER,
 };
 
-/* returns blanks count or EOF */
-int getblank(char *, int);
+/* returns space count (including newlines) or EOF */
+int getspace(char *, int);
 
 /* read next token, skips space characters (including newline).
   returns supported token type, encountered character or EOF.

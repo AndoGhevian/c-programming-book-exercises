@@ -3,6 +3,19 @@
 #include "tokenizer.h"
 #include "../../utils/char_utils.h"
 
+int getspace(char *space, int lim) {
+  int c, n;
+
+  for(n = 0; --lim && isspace(c = getch()); n++)
+    *space++ = c;
+  *space = '\0';
+
+  if(lim)
+    ungetch(c);
+
+  return n;
+}
+
 int gettoken(char *token, int lim) {
   int isa, isn, isc, iss;
   int c, endc;

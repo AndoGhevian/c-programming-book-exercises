@@ -89,7 +89,7 @@ main() {
       }
     else {
       ungetch(c);
-      if(getblank(token, MAXTOKEN) > 0)
+      if(getspace(token, MAXTOKEN) > 0)
         codetext = addcodetok(codetext, token);
       switch(gettoken(token, MAXTOKEN)) {
         case COMMENT:
