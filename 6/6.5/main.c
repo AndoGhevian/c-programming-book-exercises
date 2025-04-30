@@ -21,14 +21,10 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "tokenizer.h"
+#include "symbols.h"
 #include "../../utils/char_utils.h"
 
-struct nlist;
 struct codeblock;
-
-struct nlist *lookup(char *);
-struct nlist *install(char *, char *);
-struct nlist *uninstall(char *);
 
 struct codeblock *addcodetok(struct codeblock *, char *);
 void printcode(struct codeblock *);
@@ -111,12 +107,6 @@ main() {
   printcode(codetext);
   return 0;
 }
-
-struct nlist {
-  struct nlist *next;
-  char *name;
-  char *defn;
-};
 
 struct codeblock {
   struct codeblock *next;
