@@ -91,6 +91,10 @@ main() {
       ungetch(c);
       if(getspace(token, MAXTOKEN) > 0)
         codetext = addcodetok(codetext, token);
+
+      if((c = getch(), ungetch(c), c) == '#')
+        break;
+
       switch(gettoken(token, MAXTOKEN)) {
         case COMMENT:
         case EOF:
