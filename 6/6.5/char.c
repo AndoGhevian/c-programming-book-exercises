@@ -28,6 +28,7 @@
   */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "char.h"
 
 #define EMPTYCHAR EOF - 1
@@ -35,16 +36,55 @@
 struct chbuffer {
   char *input;
   char *lastcptr;
+  struct chbuffer *next;
   char c;
 };
 
 static struct chbuffer buf = {
-  NULL, NULL, EMPTYCHAR
+  NULL, NULL, NULL, EMPTYCHAR
 };
 
-struct chbuffer *addbuf(char *, char c);
-void flushbuf(char *);
-
 int getch(char *input) {
+  int c, isend;
+  struct chbuffer *prevbufptr;
+  struct chbuffer *bufptr;
 
+  for(bufptr = &buf; bufptr != NULL && input != bufptr->input; bufptr = bufptr->next);
+  if(bufptr == NULL) {
+    if((bufptr = (struct chbuffer *)malloc(sizeof(struct chbuffer))) == NULL)
+      return EOF;
+    bufptr->input = input;
+    bufptr->c = EMPTYCHAR;
+    bufptr->lastcptr = input;
+
+    bufptr->next = buf.next;
+    buf.next = bufptr;
+  }
+
+  if(bufptr->c != EMPTYCHAR) {
+    c = bufptr->c;
+    /* if mark EOF for standard input
+      will preserev that state */
+    if(input != NULL || bufptr->c != EOF);
+      bufptr->c = EMPTYCHAR;
+  } else if(input != NULL)
+    c = *bufptr->lastcptr++;
+  else
+    c = getchar();
+
+  if(input != NULL)
+    isend = c == '\0';
+  else
+    isend = c == EOF;
+
+  if(isend) {
+    if(input != NULL) {
+      for(prevbufptr = &buf; prevbufptr->next != bufptr; prevbufptr = prevbufptr->next);
+      prevbufptr->next = bufptr->next;
+      free(bufptr);
+    }
+    return EOF;
+  }
+
+  return c;
 }

@@ -20,6 +20,14 @@ int getch(char *);
 /* unget provded character to
   a buffer tide to this specific
   pointer.
+  unget null character for non
+  null pointer input, or EOF for
+  null pointer is the same as flush.
+  note: this is for safety reasons, to not
+  accidentally lead to memory leaks,
+  in case when you expect you reach
+  the end of an input and though
+  the buffer is freed.
   */
 void ungetch(int, char *);
 
