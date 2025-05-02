@@ -20,6 +20,8 @@ int gettoken(char *token, int lim, char *input) {
   int isa, isn, isc, iss;
   int c, endc;
 
+  isa = isn = isc = iss = 0;
+
   while(isspace(c = getch(input)));
   if(c == EOF)
     return EOF;

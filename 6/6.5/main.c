@@ -42,7 +42,7 @@ char *replacetxtptr = replacetxt;
 
 main() {
   int c, ttype, lim, isesc;
-  struct codeblock *codelist;
+  struct codeblock *codelist = NULL;
 
   while((c = getch(NULL)) != EOF)
     if(c == '#')
@@ -88,23 +88,20 @@ main() {
       ungetch(c, NULL);
       if(getspace(token, MAXTOKEN, NULL))
         codelist = addcode(codelist, token);
-
-      if((c = getch(NULL), ungetch(c, NULL), c) == '#')
-        break;
-
-      switch(gettoken(token, MAXTOKEN, NULL)) {
-        case COMMENT:
-        case EOF:
-          break;
-        case NAME:
-          codelist = addprocesscode(codelist, token);
-          break;
-        case STRING:
-        case NUMBER:
-        default:
-          codelist = addcode(codelist, token);
-          break;
-      }
+      else
+        switch(gettoken(token, MAXTOKEN, NULL)) {
+          case COMMENT:
+          case EOF:
+            break;
+          case NAME:
+            codelist = addprocesscode(codelist, token);
+            break;
+          case STRING:
+          case NUMBER:
+          default:
+            codelist = addcode(codelist, token);
+            break;
+        }
     }
 
   printcode(codelist);
@@ -130,10 +127,9 @@ struct keyval directives[] = {
 char dirstr[MAXTOKEN];
 
 int getdirective(void) {
-  int i;
   struct keyval *directive = NULL;
 
-  if(gettoken(dirstr, NDIR, NULL) == EOF)
+  if(gettoken(dirstr, MAXTOKEN, NULL) == EOF)
     return EOF;
 
   if(directive = binsrch_keyval(dirstr, directives, NDIR))
@@ -167,7 +163,7 @@ struct codeblock *addprocesscode(struct codeblock *codelist, char *code) {
     else
       switch(gettoken(proctoken, MAXTOKEN, code)) {
         case NAME:
-          if((symbol = lookup(proctoken)))
+          if(symbol = lookup(proctoken))
             codelist = addprocesscode(codelist, symbol->defn);
           else
             codelist = addcode(codelist, proctoken);
@@ -178,6 +174,7 @@ struct codeblock *addprocesscode(struct codeblock *codelist, char *code) {
         case NUMBER:
         default:
           codelist = addcode(codelist, proctoken);
+          break;
       }
   }
 
@@ -195,18 +192,23 @@ void printcode(struct codeblock *codelist) {
 
 #include <string.h>
 
-char *strdup(char *);
+static char *l_strdup(char *);
 
 struct codeblock *addcode(struct codeblock *codelist, char *code) {
   struct codeblock *cblock = (struct codeblock *)malloc(sizeof(struct codeblock));
-  if(cblock && (cblock->token = strdup(code))) {
-    strcpy(cblock->token, code);
-    cblock->next = codelist;
-  } else
-    return codelist;
+  if(cblock) {
+    if(cblock->token = l_strdup(code)) {
+      strcpy(cblock->token, code);
+      cblock->next = codelist;
+      return cblock;
+    } else
+      free(cblock);
+  }
+
+  return codelist;
 }
 
-char *strdup(char *s) {
+static char *l_strdup(char *s) {
   char *cpy;
 
   if((cpy = (char *)malloc(strlen(s) + 1)) == NULL)

@@ -15,7 +15,7 @@ struct keyval *binsrch_keyval(char *s, struct keyval *v, int n) {
     else if(comp > 0)
       left = mid + 1;
     else
-      mid;
+      return mid;
 
-    return NULL;
+  return NULL;
 }

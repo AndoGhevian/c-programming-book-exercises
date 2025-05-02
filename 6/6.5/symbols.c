@@ -3,8 +3,8 @@
 #include <string.h>
 #include "symbols.h"
 
-int hash(char *, int);
-char *strdup(char *);
+static int hash(char *, int);
+static char *l_strdup(char *);
 
 #define TABSIZE 101
 static struct nlist *hashtab[TABSIZE];
@@ -15,7 +15,7 @@ struct nlist *install(char *symbol, char *text) {
 
   if((symblock = lookup(symbol)) == NULL) {
     symblock = (struct nlist *)malloc(sizeof( struct nlist));
-    if(symblock == NULL || (symblock->name = strdup(text)) == NULL) {
+    if(symblock == NULL || (symblock->name = l_strdup(symbol)) == NULL) {
       free((void *)symblock); /* to prevent memory leaks */
       return NULL;
     }
@@ -25,9 +25,9 @@ struct nlist *install(char *symbol, char *text) {
   } else
     free((void *)symblock->defn);
 
-  if((symblock->defn = strdup(text)) == NULL)
+  if((symblock->defn = l_strdup(text)) == NULL)
     return NULL;
-  return symbol;
+  return symblock;
 }
 
 struct nlist *lookup(char *name) {
@@ -50,7 +50,7 @@ char *uninstall(char *name) {
   return defn;
 }
 
-char *strdup(char *s) {
+static char *l_strdup(char *s) {
   char *scp;
   if(scp = (char *)malloc(strlen(s) + 1))
     strcpy(scp, s);
@@ -60,7 +60,7 @@ char *strdup(char *s) {
 
 /* lowercase alpha, digits */
 #define MAXCHARRANK 36
-int hash(char *s, int distribn) {
+static int hash(char *s, int distribn) {
   int hashval;
 
   for(hashval = 0; *s != 0; s++)
