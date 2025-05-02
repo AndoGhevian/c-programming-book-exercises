@@ -44,6 +44,8 @@ static struct chbuffer buf = {
   NULL, NULL, NULL, EMPTYCHAR
 };
 
+static struct chbuffer *bufalloc(char *input);
+
 int getch(char *input) {
   int c, isend;
   struct chbuffer *prevbufptr;
@@ -51,11 +53,8 @@ int getch(char *input) {
 
   for(bufptr = &buf; bufptr != NULL && input != bufptr->input; bufptr = bufptr->next);
   if(bufptr == NULL) {
-    if((bufptr = (struct chbuffer *)malloc(sizeof(struct chbuffer))) == NULL)
+    if((bufptr = bufalloc(input)) == NULL)
       return EOF;
-    bufptr->input = input;
-    bufptr->c = EMPTYCHAR;
-    bufptr->lastcptr = input;
 
     bufptr->next = buf.next;
     buf.next = bufptr;
@@ -87,4 +86,46 @@ int getch(char *input) {
   }
 
   return c;
+}
+
+int ungetch(int c, char *input) {
+  struct chbuffer *bufptr;
+
+  for(bufptr = &buf; bufptr != NULL && input != bufptr->input; bufptr = bufptr->next);
+  if(bufptr == NULL) {
+    if((bufptr = bufalloc(input)) == NULL)
+      return 1;
+
+    bufptr->next = buf.next;
+    buf.next = bufptr;
+  }
+
+  bufptr->c = c;
+
+  return 0;
+}
+
+void flushbuf(char *input) {
+  struct chbuffer *ptr, *clrptr;
+  if(input == NULL)
+    buf.c = EOF;
+  else {
+    for(ptr = &buf; ptr->next != NULL && input != ptr->next->input; ptr = ptr->next);
+    if(ptr->next != NULL) {
+      clrptr = ptr->next;
+      ptr->next = ptr->next->next;
+      free(clrptr);
+    }
+  }
+}
+
+static struct chbuffer *bufalloc(char *input) {
+  struct chbuffer *ptr;
+  if((ptr = (struct chbuffer *)malloc(sizeof(struct chbuffer))) == NULL)
+    return NULL;
+  ptr->input = input;
+  ptr->c = EMPTYCHAR;
+  ptr->lastcptr = input;
+  ptr->next = NULL;
+  return ptr;
 }

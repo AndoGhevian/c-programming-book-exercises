@@ -19,7 +19,8 @@ void flushbuf(char *);
 int getch(char *);
 /* unget provded character to
   a buffer tide to this specific
-  pointer.
+  pointer. returns 1 if error, 0
+  if succeede.
   unget null character for non
   null pointer input, or EOF for
   null pointer is the same as flush.
@@ -29,6 +30,6 @@ int getch(char *);
   the end of an input and though
   the buffer is freed.
   */
-void ungetch(int, char *);
+int ungetch(int, char *);
 
 #endif
