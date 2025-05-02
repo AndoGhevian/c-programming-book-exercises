@@ -22,11 +22,12 @@
 #include <ctype.h>
 #include "tokenizer.h"
 #include "symbols.h"
-#include "../../utils/char_utils.h"
+#include "char.h"
 
 struct codeblock;
 
-struct codeblock *addcodetok(struct codeblock *, char *);
+struct codeblock *addcode(struct codeblock *, char *);
+struct codeblock *addprocesscode(struct codeblock *, char *);
 void printcode(struct codeblock *);
 
 int getdirective(void);
@@ -43,20 +44,20 @@ main() {
   int c, ttype, lim, isesc;
   struct codeblock *codetext;
 
-  while((c = getch()) != EOF)
+  while((c = getch(NULL)) != EOF)
     if(c == '#')
       switch(getdirective()) {
         case DEFINE:
           if(getsymbolicname(symbolicname, MAXTOKEN))
             break;
 
-          while(isblank(c = getch()));
-          ungetch(c);
+          while(isblank(c = getch(NULL)));
+          ungetch(c, NULL);
 
           isesc = 0;
           lim = MAXREPLTXT;
           replacetxtptr = replacetxt;
-          while(--lim && (c = getch()) != EOF && (c != '\n' || isesc))
+          while(--lim && (c = getch(NULL)) != EOF && (c != '\n' || isesc))
             switch(c) {
               case '\n':
                 /* (replacetxtptr - 1) is a valid pointer because
@@ -84,22 +85,24 @@ main() {
           break;
       }
     else {
-      ungetch(c);
-      if(getspace(token, MAXTOKEN) > 0)
-        codetext = addcodetok(codetext, token);
+      ungetch(c, NULL);
+      if(getspace(token, MAXTOKEN, NULL) > 0)
+        codetext = addcode(codetext, token);
 
-      if((c = getch(), ungetch(c), c) == '#')
+      if((c = getch(NULL), ungetch(c, NULL), c) == '#')
         break;
 
-      switch(gettoken(token, MAXTOKEN)) {
+      switch(gettoken(token, MAXTOKEN, NULL)) {
         case COMMENT:
         case EOF:
           break;
         case NAME:
+          codetext = addprocesscode(codetext, token);
+          break;
         case STRING:
         case NUMBER:
         default:
-          codetext = addcodetok(codetext, token);
+          codetext = addcode(codetext, token);
           break;
       }
     }
@@ -135,7 +138,7 @@ int getdirective(void) {
   int i;
   struct keyval *directive = NULL;
 
-  if(gettoken(dirstr, NDIR) == EOF)
+  if(gettoken(dirstr, NDIR, NULL) == EOF)
     return EOF;
 
   if(directive = binsrch_keyval(dirstr, directives, NDIR))
