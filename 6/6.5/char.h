@@ -23,11 +23,11 @@ int getch(char *);
   if succeede.
   unget null character for non
   null pointer input, or EOF for
-  null pointer is the same as flush.
+  null pointer is equivalent to flush.
   note: this is for safety reasons, to not
   accidentally lead to memory leaks,
   in case when you expect you reach
-  the end of an input and though
+  the end of an input and so
   the buffer is freed.
   */
 int ungetch(int, char *);
