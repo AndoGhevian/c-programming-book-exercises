@@ -3,6 +3,9 @@ void minprintf(char *fmt, ...);
 main() {
   minprintf("hel%%%dlo%wor%*.*dld\n", 10, 10, 5, 101);
   minprintf("hel%%%dlo%wor%*.4dld\n", 10, 6, 234);
+  minprintf("hello%6.*s --- Yes: %d%% \n", 5, "world", 100);
+  minprintf("invalid conversion specs: %123asd %*asd %.12ws %.*\n");
+  minprintf("short me: %.*s\n", 7, "short Text");
   return 0;
 }
 
@@ -65,6 +68,11 @@ void minprintf(char *fmt, ...) {
       *specptr++ = *p++; /* % */
       ispecarg = 0;
 
+      if(*p == '%') {
+        *specptr = '\0';
+        continue;
+      }
+
       if(*p == '-' || *p == '+')
         *specptr++ = *p++;
 
@@ -72,7 +80,7 @@ void minprintf(char *fmt, ...) {
       if(is_convspecend(specptr)) {
         p--;
         *specptr = '\0';
-        break;
+        continue;
       }
 
       if(*p == '.') {
@@ -82,7 +90,7 @@ void minprintf(char *fmt, ...) {
         if(is_convspecend(specptr)) {
           p--;
           *specptr = '\0';
-          break;
+          continue;
         }
       }
 
@@ -93,6 +101,10 @@ void minprintf(char *fmt, ...) {
         case 'd':
         case 'i':
           argparse(ispecarg, int);
+          convspec[0] = '\0';
+          break;
+        case 's':
+          argparse(ispecarg, char *);
           convspec[0] = '\0';
           break;
         default:
