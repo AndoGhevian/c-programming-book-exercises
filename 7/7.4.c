@@ -35,3 +35,43 @@ we have 2 ways:
 this all need to be taken in to account when working on implementation
 of a private scanf.
 */
+
+#include <stdio.h>
+
+/*we assume we cant use conversion type 'n' because
+  in this chapter we have not introduced it.
+
+  for not supported conversion specifications
+  (out-of-scope format specifications) we will
+  assume no-match behaviour.
+
+  considerations:
+  firstly we thought to consider not supported specfications
+  as simple character sequances to match. but in this case
+  it occures that we are supporting invalid formats
+  instead of mitigating them.
+  In case when we consider them as invalid, we simply need
+  to stop parsing, because there is no simple implementation
+  to handle them as character sequance, and for simple implementations
+  limitations can occure.
+
+  implementation algorithm description:
+  1. we read until conversion specification (valid/invalid),
+  2. check if specification is invalid, then apply scanf
+    to format string already read.
+  3. if specification is valid, then apply scanf against appropriate
+    type pointer argument, and in case if it return 1,
+    increment matched and assigned converted values and
+    continue from step 2, otherwise if return 0,
+    return converted values counter.
+
+  notes:
+    valid or invalid refere to supported by our private
+    scanf format conversion specifications (even custom),
+    not original scanf.
+ */
+
+main() {
+
+  return 0;
+}
