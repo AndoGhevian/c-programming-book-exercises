@@ -132,7 +132,6 @@ int private_scanf(char *fmt, ...) {
       if(privfmtp == privfmtendp) {
         /* in this case no conversion specification encountered */
         *privfmtp = '\0';
-        scanf(privfmt_start);
         break;
       }
       *privfmtp++ = *fmtp;
