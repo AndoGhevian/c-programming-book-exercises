@@ -38,6 +38,8 @@ of a private scanf.
 
 #include <stdio.h>
 
+int private_scanf(char *fmt, ...);
+
 /*we assume we cant use conversion type 'n' because
   in this chapter we have not introduced it.
 
@@ -62,7 +64,7 @@ of a private scanf.
   3. if specification is valid, then apply scanf against appropriate
     type pointer argument, and in case if it return 1,
     increment matched and assigned converted values and
-    continue from step 2, otherwise if return 0,
+    continue from step 1, otherwise if return 0,
     return converted values counter.
 
   notes:
@@ -72,6 +74,125 @@ of a private scanf.
  */
 
 main() {
+  int n;
+
+  char s[100] = "K";
+  int i, i2;
+
+  n = private_scanf("hello world "); /* space to handle \n */
+  n = private_scanf("abc%s", s);
+  printf("parsed n: %d\n", n);
+  printf("%s   %d %d\n", s, i, i2);
+
+  n = private_scanf("%d", &i);
+  printf("parsed n: %d\n", n);
+  printf("%d\n",i);
 
   return 0;
+}
+
+#include <stdio.h>
+#include <ctype.h>
+#include <stdarg.h>
+
+/*it is possible to implement linked list of strings
+  to support arbitrary length of formats, but now we
+  will give it a limit */
+#define MAXFORMAT 1000
+char privfmt[MAXFORMAT];
+char const *privfmtendp = privfmt + MAXFORMAT - 1;
+
+#define MAXSTRING 1000
+
+int private_scanf(char *fmt, ...) {
+  va_list ap;
+  int nconvspec, isassign_suppress;
+  char const *fmtp = fmt;
+  char *privfmtp = privfmt;
+  char *privfmt_start, *privfmt_start_tmp;
+  char *convspecp;
+
+  /*suppression storage variables*/
+  int suppress_int;
+  char suppress_string[MAXSTRING];
+
+  va_start(ap, fmt);
+
+  #define invalid_spec_fallback_scanf() {\
+    if(privfmtp == privfmtendp) {\
+      *convspecp = '\0';\
+      scanf(privfmt_start);\
+      break;\
+    }\
+  }
+
+  nconvspec = 0;
+  for(isassign_suppress = 0, privfmt_start = privfmtp, fmtp = fmt; *fmtp != '\0'; fmtp++)
+    if(*fmtp != '%') {
+      if(privfmtp == privfmtendp) {
+        /* in this case no conversion specification encountered */
+        *privfmtp = '\0';
+        scanf(privfmt_start);
+        break;
+      }
+      *privfmtp++ = *fmtp;
+    } else {
+      convspecp = privfmtp;
+      *privfmtp++ = *fmtp++; /* % */
+
+      invalid_spec_fallback_scanf();
+
+      if(isassign_suppress = (*fmtp == '*'))
+        fmtp++;
+
+      invalid_spec_fallback_scanf();
+
+      while(isdigit(*fmtp) && privfmtp != privfmtendp)
+        *privfmtp++ = *fmtp++;
+
+      invalid_spec_fallback_scanf();
+      *privfmtp++ = *fmtp; /* maybe \0 reached */
+      *privfmtp = '\0';
+
+      privfmt_start_tmp = privfmt_start;
+      privfmt_start = privfmtp;
+      if(isassign_suppress) {
+        if(*fmtp == 'd')
+          if(scanf(privfmt_start_tmp, &suppress_int))
+            continue;
+          else
+            break;
+        else if(*fmtp == 's')
+          if(scanf(privfmt_start_tmp, suppress_string)) /*this should be implemented manually to not cause segmentation fault*/
+            continue;
+          else
+            break;
+      } else {
+        if(*fmtp == 'd')
+          if(scanf(privfmt_start_tmp, va_arg(ap, int *))) {
+            nconvspec++;
+            continue;
+          } else
+            break;
+        else if(*fmtp == 's')
+          if(scanf(privfmt_start_tmp, va_arg(ap, char *))) {
+            nconvspec++;
+            continue;
+          } else
+            break;
+      }
+
+      /* not supproted conversion type (including if \0 reached) */
+      *convspecp = '\0';
+      privfmt_start = privfmt_start_tmp;
+
+      break;
+    }
+
+  if(*privfmt_start != '\0')
+    scanf(privfmt_start);
+
+  va_end(ap);
+
+  return nconvspec;
 }
