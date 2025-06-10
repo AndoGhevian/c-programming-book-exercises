@@ -61,6 +61,13 @@ will be created and operation will be performed as intended.
   &n...&1/
 5. print...&n (same as print&1...&n) : printing arguments (to print something you need to put it in the variable)
 6. print... to print all existing variables.
+
+conclusion:
+most importanty new syntax for extensions is easy to implement
+using simple sscanf. second is that we will not expose internaly
+allocated memory to caller, but simply will free it on function return.
+also the variable exposure configuration format will support
+the same syntax for multiple variable operations.
 */
 
 #include <stdio.h>
