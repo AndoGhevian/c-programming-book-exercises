@@ -1,54 +1,66 @@
 /* invalid name in book: exercise 5-5 instead of 7-5 (7.5) */
 
-/*design considerations version 1.0.0:
+/*design considerations version 2.0.0:
 even though problem is related only to
 scanf, but because previous chapter was related
 to variadic arguments, and previously we also
 implemented saving results to variables for postfix
 calculator, it is reasonable to implement this task
-using more intuitive way, where it is possible to
-save results to variadic arguments.
+using more intuitive way, where it is possible after
+calulations to expose variables as variadic arguments.
 
-there are 2 possible inputs for calculator,
-1. standard input, 2. string literal input, in case
-of standard input (1) it will be dangerous from memory management
-perspective to support variadic arguments without explicitly providing the
-number of variadic arguments. In case of a string literal (2)
-its used arguments count known in advance, during coding.
-for not string literals reasons/solution are the same
-as for standard input (1)
+for this reasone we will use a "variable exposure configuration"
+string of format: "&5   &1     &7...&10" arguments will match to contiguouse
+sequance of variadic arguments: &5->va1, &1->va2, &7->va3, &8->va4, &9->va5, &10->va6.
+Because of this configuration string developer will already know how many variadic
+arguments to provide.
 
-for standard input we can allocate appropriate variables when they
-exceeded maximum arguments count limit and then expose those to the caller
-as a linked-list or even represent them as a contiguous memory range.
+during calculations float variables will be allocated for &1, &2 etc.
+1. it could be returned as a pointers float * array (finishing with NULL pointer)
+to caller, or 2. after assigning values to variadic arguments these memory can be freed.
 
 calculator format:
 supported operators:
 +, -, *, /, % : arithmetic operations
-=&n : where n >= 1 indicating appropriate variadic argument
+=&n : where n >= 1 indicating appropriate variable
 &n : to use its value
-print&n : to print n'th argument value for debugging,
+print&n : to print n'th vairable value for debugging,
   in case if sequential prints are called, they all will
   be printed on the same line other than any input.
 clear : clear the calculator stack
 
 extensions:
-we also want to support possibility to operate on multiple variadic arguments
-at once. for this reasone, it is required for intuitive usage to have
-explicitly provide expected arguments count to calculator function,
-as for case of dynamic input (standard input).
-1. =&n... : pop and assign values starting from variadic argument n till the end.
-  stop when variadic argument list end reached or stack is empty.
-2. =?n... : same as =&n... but assign 0's to rest of arguments if stack is empty.
-3. +&n... : sum and replace each stack value with its appropriate argument starting from n'th.
-4. same for * as +&n..., (/, % are not commutative) where - stackval op &n - is performed
-5. print&n... : printing arguments (to print something you need to put it in the argument)
-6. =..., +..., *..., print... and others for case of &1...
+we also want to support possibility to operate on multiple variables
+at once.
+previous design assumes that provided the first variable,
+the operation is performed on it and each subsequant variable,
+but in this case, if &6 for example not encountered during calculations
+and we are executing =&1... it doesnt know that there is &6 exists,
+so operation is not intuitive and hard to track the results.
 
-conclusion:
-to not complicate the task too much, i will implement
-a simplest case with string literal support without
-operations on multiple operands.
+in the new version of multy-operations format is =...&6 with optional start
+variable =&3...&6, in this case if encountered yet, all variables until &6
+will be created and operation will be performed as intended.
+1. =...&n (=&m...&n) : pop and assign values from calculator stack until its empty
+  or end of assign variables reached. in case if start vairable index is greater
+  than end variable index, assignement will be performed in reversed order.
+
+  =&1...&3 (same as =...&3) result to: &3 = pop(), &2 = pop(), &1 = pop()
+  =&3...&1 result to: &1 = pop(), &2 = pop(), &1 = pop()
+  cycle finish if end of stack is reached.
+
+2. (optional implementation) =?...&n (same as =?1...&n) : same as =...&n
+  but assign 0's to rest of arguments if stack is empty.
+3. (optional implementation) implement for arithmetic operators "prefix":
+  +...&n (same as +&1...&n) or even reversed version with +&n...&1
+
+  interpreted as val1 = pop() + &n, val2 = pop() + &n - 1, valn = pop() + &1 and then push all these
+  to the stack again, push(valn), ...push(val1) (same for reversed)
+4. (optional implementation) implement for arithmetic operators "postfix":
+  in which case operator puted at the end ...&n/ (same as &1...&n/) or reversed one
+  &n...&1/
+5. print...&n (same as print&1...&n) : printing arguments (to print something you need to put it in the variable)
+6. print... to print all existing variables.
 */
 
 #include <stdio.h>
