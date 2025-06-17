@@ -13,13 +13,22 @@ for this reasone we will use a "variable exposure configuration"
 string of format: "&5   &1     &7...&10" arguments will match to contiguouse
 sequance of variadic arguments: &5->va1, &1->va2, &7->va3, &8->va4, &9->va5, &10->va6.
 Because of this configuration string developer will already know how many variadic
-arguments to provide.
+arguments to provide. each configuration entity corresponds to next variadic argument in the list.
+note: opposite to processing of "calculations input format"
+  for multy variable operations, where input variables are proccessed from the last one,
+  for "exposure configuration" variadic arguments stack is upside down,
+  and the end of a stack, from where arguments are retrived is the start of
+  variadic arguments list.
 
 during calculations float variables will be allocated for &1, &2 etc.
-1. it could be returned as a pointers float * array (finishing with NULL pointer)
+1. it could be returned as a pointers array float *vars[] (finishing with NULL pointer)
 to caller, or 2. after assigning values to variadic arguments these memory can be freed.
 
 calculator format:
+note: scanf to indicate whether variable in input
+or assignment operations are of valid format
+it is required to put at leats one
+parsable data types in the end of the input.
 supported operators:
 +, -, *, /, % : arithmetic operations
 =&n : where n >= 1 indicating appropriate variable
@@ -59,7 +68,9 @@ will be created and operation will be performed as intended.
 4. (optional implementation) implement for arithmetic operators "postfix":
   in which case operator puted at the end ...&n/ (same as &1...&n/) or reversed one
   &n...&1/
-5. print...&n (same as print&1...&n) : printing arguments (to print something you need to put it in the variable)
+5. print...&n (same as print&1...&n) : printing arguments,
+  to print something you need to put it in the variable,
+  default variable value is 0.
 6. print... to print all existing variables.
 
 conclusion:
