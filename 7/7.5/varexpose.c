@@ -93,7 +93,7 @@ struct varexpose *parse_varexposeconfig(char const *conf) {
   if(varstack == NULL)
     return NULL;
 
-  return reverse_stack(varstack);
+  return reverse_stack(varstack, (char *)&varstack->next - (char *)varstack);
 }
 
 #include <stdlib.h>

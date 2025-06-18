@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-static void *lastnode;
+#define memberbyoffset(structptr, offset) ((void *)((char *)structptr + offset))
 
 /* this function modify stack so that
   its nodes point each other in opposite
@@ -11,16 +11,16 @@ static void *lastnode;
   has first member of type void * pointing to
   next node in stack.
  */
-void *reverse_stack(void *stack) {
+void *reverse_stack(void *stack, int nextoffsetbytes) {
   void *lastnode, *next;
 
-  next = *(void **)stack;
+  next = *(void **)memberbyoffset(stack, nextoffsetbytes);
   lastnode = stack;
   if(next != NULL) {
-    lastnode = reverse_stack(next);
-    *(void **)next = stack;
+    lastnode = reverse_stack(next, nextoffsetbytes);
+    *(void **)memberbyoffset(stack, nextoffsetbytes) = stack;
   }
 
-  *(void **)stack = NULL;
+  *(void **)memberbyoffset(stack, nextoffsetbytes) = NULL;
   return lastnode;
 }
