@@ -24,10 +24,6 @@ static char spreadexp[MAXVAREXP + 1];
     - &16...&11 (reversed assignment) &16, &15, ... &11 to each next variadic argument
 
   variable exposure entity can repeat for the same variable
-
-  need-fix: the variable exposure structure list is returned in reversed order,
-  so to perform assignment to variadic arguments as described above,
-  you need to perform operations from the last node of a linked-list.
  */
 struct varexpose *parse_varexposeconfig(char const *conf) {
   struct varexpose *varstack = NULL, *varnode = NULL;
@@ -87,12 +83,17 @@ struct varexpose *parse_varexposeconfig(char const *conf) {
       varexp_errstr = varexp_err_messages[INVALID_VAR_RANGE_EXPOSE_END_CONFIG];
     case UNABLE_ALLOCATE_VAR_EXPOSE_MEMORY:
       varexp_errstr = varexp_err_messages[UNABLE_ALLOCATE_VAR_EXPOSE_MEMORY];
-    default:
+    case OK_VAR_EXPOSE:
       varexp_errstr = varexp_err_messages[OK_VAR_EXPOSE];
+    default:
+      varexp_errstr = "no message";
       break;
   }
 
-  return varstack;
+  if(varstack == NULL)
+    return NULL;
+
+  return reverse_stack(varstack);
 }
 
 #include <stdlib.h>
