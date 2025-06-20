@@ -18,7 +18,10 @@ enum varexpose_error {
   OK_VAR_EXPOSE,
   UNABLE_ALLOCATE_VAR_EXPOSE_MEMORY,
   INVALID_VAR_EXPOSE_CONFIG,
-  INVALID_VAR_RANGE_EXPOSE_END_CONFIG
+  INVALID_VAR_SINGLE_EXPOSE,
+  INVALID_VAR_RANGE_EXPOSE_START_AND_END,
+  INVALID_VAR_RANGE_EXPOSE_START,
+  INVALID_VAR_RANGE_EXPOSE_END
 };
 
 enum varexpose_error varexp_errno;
@@ -28,7 +31,10 @@ static char *varexp_err_messages[] = {
   "", /* 0 -> no error */
   "unable to allocate memory for configuration entity data structure",
   "invalid expose configuration entity",
-  "invalid variable range expose configuration end"
+  "invalid expose variable",
+  "invalid variable range expose end and start",
+  "invalid variable range expose start",
+  "invalid variable range expose end"
 };
 
 #endif
