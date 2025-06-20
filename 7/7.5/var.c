@@ -55,6 +55,9 @@ enum var_entities parse_varstr(char const *s, int *var_start, int *var_end, char
   if((n = sscanf(s, "&%d...&%d%s", var_start, var_end, s_rest)) == 3 || n == 2)
     return VAR_RANGE;
   else if(n == 1) {
+    /* it will read second time only part with &%d...& which is, in case
+      if variable number is of a reasonable size, will be a few characters,
+      tending to constant reads count of 16, or so. */
     sscanf(s, "&%*d%s", s_rest);
     return SINGLE_VAR;
   }
