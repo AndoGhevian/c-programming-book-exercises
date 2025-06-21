@@ -44,34 +44,7 @@ enum optypes {
   PRINT
 };
 
-#define MAXABBR 10
-
-struct op {
-  enum optypes type;
-  char *abbr[MAXABBR];
-  int abbrlen[MAXABBR];
-} opabbrs[] = {
-  /* ops without abbreviations can be omited */
-  { NUMPUSH, {NULL} },
-  { VAR, {NULL} },
-
-  { VARASSIGN, {"=", NULL}, {sizeof("=") - 1} },
-  { VAROPTASSIGN, {"=?", NULL}, {sizeof("=?") - 1} },
-  /* compile time abbreviations and their length defined */
-  { CLEARSTACK, {"clear", "clr", NULL}, {sizeof("clear") - 1, sizeof("clr") - 1} },
-  { ADD, {"+", NULL}, {sizeof("+") - 1} },
-  { MUL, {"*", NULL}, {sizeof("*") - 1} },
-  { SUBTR, {"-", NULL}, {sizeof("-") - 1} },
-  { DIV, {"/", NULL}, {sizeof("/") - 1} },
-  { ADDVAR, {"+&", NULL}, {sizeof("+&") - 1} },
-  { MULVAR, {"*&", NULL}, {sizeof("*&") - 1} },
-  { SUBTRVAR, {"-&", NULL}, {sizeof("-&") - 1} },
-  { DIVVAR, {"/&", NULL}, {sizeof("/&") - 1} },
-  { PRINT, {"print", NULL}, {sizeof("print") - 1} }
-};
-
 #define N_OPABBRS (sizeof opabbrs / sizeof(struct op))
-#undef MAXABBR
 
 enum optypes getop(char *, int *);
 
