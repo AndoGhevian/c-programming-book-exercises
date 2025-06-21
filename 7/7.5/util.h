@@ -40,7 +40,8 @@ enum optypes {
   ADDVAR,
   MULVAR,
   SUBTRVAR,
-  DIVVAR
+  DIVVAR,
+  PRINT
 };
 
 #define MAXABBR 10
@@ -65,7 +66,8 @@ struct op {
   { ADDVAR, {"+&", NULL}, {sizeof("+&") - 1} },
   { MULVAR, {"*&", NULL}, {sizeof("*&") - 1} },
   { SUBTRVAR, {"-&", NULL}, {sizeof("-&") - 1} },
-  { DIVVAR, {"/&", NULL}, {sizeof("/&") - 1} }
+  { DIVVAR, {"/&", NULL}, {sizeof("/&") - 1} },
+  { PRINT, {"print", NULL}, {sizeof("print") - 1} }
 };
 
 #define N_OPABBRS (sizeof opabbrs / sizeof(struct op))
