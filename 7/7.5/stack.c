@@ -8,8 +8,8 @@
   which is the last node in the initial stack.
 
   usage note: stack should be a structure which
-  has first member of type void * pointing to
-  next node in stack.
+  has member at provided offset of type void *
+  pointing to next node in stack.
  */
 void *reverse_stack(void *stack, int nextoffsetbytes) {
   void *lastnode, *next;
