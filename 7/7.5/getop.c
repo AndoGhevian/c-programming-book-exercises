@@ -11,7 +11,7 @@ static struct op {
 } opabbrs[] = {
   /* ops without abbreviations can be omited */
   { NUMPUSH, {NULL} },
-  { VAR, {NULL} },
+  { VAROP, {NULL} },
 
   { VARASSIGN, {"=", NULL}, {sizeof("=") - 1} },
   { VAROPTASSIGN, {"=?", NULL}, {sizeof("=?") - 1} },
@@ -33,6 +33,8 @@ it will be required to be defined as a file-scope variable,
 not symbolic name because it needs to be resolved at compile-time,
 no preprocessing time because structure op tag name is not exposed
 to the final users.
+
+numbers format: (+-)(.)ddd, where (opt) is optional part.
 */
 #define N_OPABBRS (sizeof opabbrs / sizeof(struct op))
 
@@ -41,11 +43,18 @@ enum optypes getop(char *s, int *oplen) {
   char **abbrptr;
   int *abbrlenptr;
 
+  char *snum = s;
+
   *oplen = 0;
-  if(isdigit(*s))
+  if(*snum == '+' || *snum == '-')
+    snum++;
+  if(*snum == '.')
+    snum++;
+  if(isdigit(*snum))
     return NUMPUSH;
+
   if(*s == '&')
-    return VAR;
+    return VAROP;
 
   for(i = 0; i < N_OPABBRS; i++)
     for(abbrptr = opabbrs[i].abbr, abbrlenptr = opabbrs[i].abbrlen;

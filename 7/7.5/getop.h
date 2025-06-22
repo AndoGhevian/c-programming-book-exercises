@@ -1,7 +1,7 @@
 enum optypes {
   UNKNOWN_OP,
   NUMPUSH,
-  VAR,
+  VAROP,
   VARASSIGN,
   VAROPTASSIGN,
   CLEARSTACK,
