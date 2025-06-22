@@ -20,23 +20,23 @@ note: opposite to processing of "calculations input format"
   and the end of a stack, from where arguments are retrived is the start of
   variadic arguments list.
 
-during calculations float variables will be allocated for &1, &2 etc.
+during calculations float objects will be allocated for explicitely assigned variables
 1. it could be returned as a pointers array float *vars[] (finishing with NULL pointer)
-to caller, or 2. after assigning values to variadic arguments these memory can be freed.
+to caller, or 2. after assigning values to variadic arguments these memory need to be freed.
 
 calculator format:
-note: scanf to indicate whether variable in input
-or assignment operations are of valid format
-it is required to put at leats one
-parsable data types in the end of the input.
-supported operators:
 +, -, *, /, % : arithmetic operations
 =&n : where n >= 1 indicating appropriate variable
-&n : to use its value
+&n : to put its value on the stack
 print&n : to print n'th vairable value for debugging,
   in case if sequential prints are called, they all will
   be printed on the same line other than any input.
 clear : clear the calculator stack
+
+note: we use scanf, which is to indicate whether
+some calculation operation in the input are of valid
+format it is required to put at leats one
+parsable data type at the end of the scanf format.
 
 extensions:
 we also want to support possibility to operate on multiple variables
@@ -48,8 +48,9 @@ and we are executing =&1... it doesnt know that there is &6 exists,
 so operation is not intuitive and hard to track the results.
 
 in the new version of multy-operations format is =...&6 with optional start
-variable =&3...&6, in this case if encountered yet, all variables until &6
-will be created and operation will be performed as intended.
+variable =&3...&6, in this case if there is appropriate value in the stack
+variable will be created and operation will be performed as intended, unitl
+stack end or vairiables list exhausted.
 1. =...&n (=&m...&n) : pop and assign values from calculator stack until its empty
   or end of assign variables reached. in case if start vairable index is greater
   than end variable index, assignement will be performed in reversed order.
@@ -58,32 +59,41 @@ will be created and operation will be performed as intended.
   =&3...&1 result to: &1 = pop(), &2 = pop(), &1 = pop()
   cycle finish if end of stack is reached.
 
-2. (optional implementation) =?...&n (same as =?1...&n) : same as =...&n
-  but assign 0's to rest of arguments if stack is empty.
-3. (optional implementation) implement for arithmetic operators "prefix":
+3. implement "prefix" arithmetic operators:
   +...&n (same as +&1...&n) or even reversed version with +&n...&1
 
-  interpreted as val1 = pop() + &n, val2 = pop() + &n - 1, valn = pop() + &1 and then push all these
-  to the stack again, push(valn), ...push(val1) (same for reversed)
-4. (optional implementation) implement for arithmetic operators "postfix":
+  interpreted as valn = pop() + &n, valn-1 = pop() + &n-1, val1 = pop() + &1 and then push all these
+  to the stack again, push(val1), ...push(valn) (same for reversed)
+4. implement "postfix" arithmetic operators :
   in which case operator puted at the end ...&n/ (same as &1...&n/) or reversed one
   &n...&1/
-5. print...&n (same as print&1...&n) : printing arguments,
-  to print something you need to put it in the variable,
-  default variable value is 0.
-6. print... to print all existing variables.
+5. print...&n (same as print&1...&n) : printing variable values
+  from n to 1, if variable didn't allocated it prints 0.
+  to print something you need to put it in the variable.
+6. print... to print all existing variables,
+  with their appropriate numbers, omit not allocated ones.
+7. ..&n or &4...&n will push multiple values to calculator stack
+
+multy operations between stack values are not defined
+e.g sum of all values in the stack.
 
 conclusion:
-most importanty new syntax for extensions is easy to implement
+most importanty, new syntax for extensions is easy to implement
 using simple sscanf. second is that we will not expose internaly
 allocated memory to caller, but simply will free it on function return.
 also the variable exposure configuration format will support
 the same syntax for multiple variable operations.
+
+input exact format breakdown:
+all entities required to be separated by spaces,
+not separated by spaces operands and operators considered
+as invalid and will not have effect.
 */
 
 #include <stdio.h>
 
 main() {
+
 
   return 0;
 }
