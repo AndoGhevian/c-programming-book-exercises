@@ -1,6 +1,6 @@
 #include <string.h>
 #include <ctype.h>
-#include "util.h"
+#include "getop.h"
 
 #define MAXABBR 10
 
