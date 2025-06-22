@@ -28,6 +28,14 @@ static struct op {
   { PRINT, {"print", NULL}, {sizeof("print") - 1} }
 };
 
+/* in case if this is required outisde of getop file scope,
+it will be required to be defined as a file-scope variable,
+not symbolic name because it needs to be resolved at compile-time,
+no preprocessing time because structure op tag name is not exposed
+to the final users.
+*/
+#define N_OPABBRS (sizeof opabbrs / sizeof(struct op))
+
 enum optypes getop(char *s, int *oplen) {
   int i;
   char **abbrptr;
