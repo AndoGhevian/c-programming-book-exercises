@@ -38,6 +38,14 @@ numbers format: (+-)(.)ddd, where (opt) is optional part.
 */
 #define N_OPABBRS (sizeof opabbrs / sizeof(struct op))
 
+/* getop short circuit if op type is found,
+so we return characters count until operation end,
+not the rest part after operation.
+explaining example: ddd+print in this case first
+d is already determines numberpsuh op, so
+caller needs to parse and find its characters count
+on its own.
+*/
 enum optypes getop(char *s, int *oplen) {
   int i;
   char **abbrptr;
@@ -45,7 +53,9 @@ enum optypes getop(char *s, int *oplen) {
 
   char *snum = s;
 
-  *oplen = 0;
+  /* omit length if caller dont need */
+  if(oplen != NULL)
+    *oplen = 0;
   if(*snum == '+' || *snum == '-')
     snum++;
   if(*snum == '.')
@@ -62,7 +72,8 @@ enum optypes getop(char *s, int *oplen) {
       abbrptr++, abbrlenptr++
     )
       if(strncmp(s, *abbrptr, *abbrlenptr) == 0) {
-        *oplen = *abbrlenptr;
+        if(oplen != NULL)
+          *oplen = *abbrlenptr;
         return opabbrs[i].type;
       }
   return UNKNOWN_OP;

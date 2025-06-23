@@ -45,6 +45,9 @@ pass through to the end of unknown length input string,
 and using assumption that &ddd ddd-number part is of reasonable width,
 it will require a few character reads to trap errors, and the rest part
 will be read, only one time.
+
+future improvement: we can add a s_rest NULL pointer support
+to drain the rest part.
 */
 enum var_entities parse_varstr(char const *s, int *var_start, int *var_end, char *s_rest) {
   int n;
