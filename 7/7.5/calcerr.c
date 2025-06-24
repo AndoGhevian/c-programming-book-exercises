@@ -40,3 +40,7 @@ char *pop_calcerr(void) {
   /*error message is not defined for error type*/
   return NULL;
 }
+
+int has_calcerr(void) {
+  return errtop > errors;
+}

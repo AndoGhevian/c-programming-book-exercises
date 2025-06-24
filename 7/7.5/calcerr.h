@@ -13,4 +13,8 @@ enum calc_errors {
   NOT_IMPLEMENTED_CALC_OP
 };
 
+void push_calcerr(enum calc_errors t);
+char *pop_calcerr(void);
+int has_calcerr(void);
+
 #endif
