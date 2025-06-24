@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "util.h"
 
 #define memberbyoffset(structptr, offset) ((void *)((char *)structptr + offset))
 

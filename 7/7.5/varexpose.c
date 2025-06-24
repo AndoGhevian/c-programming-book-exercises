@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "varexpose.h"
 #include "var.h"
-#include "util.h"
+#include "util/util.h"
 
 /* stack data structure */
 static void free_varnode(struct varexpose *);

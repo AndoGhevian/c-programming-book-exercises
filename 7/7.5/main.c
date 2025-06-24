@@ -105,7 +105,7 @@ main() {
 #include "var.h"
 #include "varexpose.h"
 #include "getop.h"
-#include "util.h"
+#include "util/util.h"
 
 #define MAXVAROP 100
 static char calcop[MAXVAROP];

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "util.h"
 
 void free_linked_list(void *node, int nextoffsetbytes) {
   if(node == NULL)
