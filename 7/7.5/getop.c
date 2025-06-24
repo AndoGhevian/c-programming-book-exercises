@@ -25,7 +25,7 @@ static struct op {
   { MULVAR, {"*&", NULL}, {sizeof("*&") - 1} },
   { SUBTRVAR, {"-&", NULL}, {sizeof("-&") - 1} },
   { DIVVAR, {"/&", NULL}, {sizeof("/&") - 1} },
-  { PRINT, {"print", NULL}, {sizeof("print") - 1} }
+  { PRINTVAR, {"print", NULL}, {sizeof("print") - 1} }
 };
 
 /* in case if this is required outisde of getop file scope,

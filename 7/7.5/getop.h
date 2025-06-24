@@ -13,7 +13,7 @@ enum optypes {
   MULVAR,
   SUBTRVAR,
   DIVVAR,
-  PRINT
+  PRINTVAR
 };
 
 enum optypes getop(char *, int *);
