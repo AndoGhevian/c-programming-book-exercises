@@ -102,30 +102,38 @@ main() {
 
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
+#include "calcerr.h"
 #include "var.h"
 #include "varexpose.h"
 #include "getop.h"
 #include "util/util.h"
 
-#define MAXVAROP 100
-static char calcop[MAXVAROP];
-static char oprest[MAXVAROP];
+#define MAXOP 100
+static char calcop[MAXOP];
+static char oprest[MAXOP];
 
 /*returns the size of a stack after push or -1 if not succeede.*/
-int push_numstack(int num);
+int push_numstack(float num);
+
 /*pop number from num stack to num, returns the size of a stack after
 pop, or -1 if no nodes exists in a stack.
 */
-int pop_numstack(int *num);
-int top_numstack(void);
+int pop_numstack(float *num);
+
+/*same as pop, just not poping, but simply retrieving a value from stack*/
+int top_numstack(float *num);
+
 void clear_numstack(void);
+
+void flusherrors(void);
 
 int postfixcalc(char const *input, char const *exposefmt, ...) {
   int c, i;
 
   struct varexpose *exposelist;
 
-  int operr, err_seq, printvar_seq;
+  int operr, printseq;
   enum optypes opt;
 
   int var_start, var_end;
@@ -133,6 +141,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
   enum var_entities var_type;
 
   float fnum;
+  int printop_spread;
 
   exposelist = parse_varexposeconfig(exposefmt);
   if(exposelist == NULL) {
@@ -144,26 +153,35 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
 
   c = getch(input); /* or c = ' ' */
   do {
-    while(isspace(c)) c = getch(input);
-    for(i = 0; c != EOF && !isspace(c) && i < MAXVAROP - 1; c = getch(input), i++)
+    printseq = 0;
+    for(; isspace(c); c = getch(input))
+      if(c == '\n')
+        printseq = 1;
+
+    if(printseq)
+      /* here we also need to print vars */
+      flusherrors();
+    printseq = 0;
+
+    for(i = 0; c != EOF && !isspace(c) && i < MAXOP - 1; c = getch(input), i++)
       calcop[i] = c;
     calcop[i] = '\0';
 
+    if(c == EOF || c == '\n')
+      printseq = 1;
+
     operr = 0;
+    printop_spread = 0;
     var_offset = postfixop_offset = postfixop = 0;
     switch((opt = getop(calcop, &var_offset))) {
-      case UNKNOWN_OP:
-        printf("\nunknown calc operation.");
-        operr = 1;
-        break;
       case NUMPUSH:
         if(operr = sscanf(calcop, "%f%s", &fnum, oprest) == 2)
-          printf("\ninvalid float.");
+          push_calcerr(INVALID_FLOAT);
         break;
       case VAROP:
         var_type = parse_varstr(calcop, &var_start, &var_end, oprest);
         if(operr = var_type == INVALID_VAR)
-          printf("\ninvalid variable (or range).");
+          push_calcerr(INVALID_VAR);
         else
           switch(getop(oprest, &postfixop_offset)) {
             case ADD:
@@ -176,12 +194,12 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
               opt = DIVVAR;
               postfixop = 1;
               if(*(oprest + postfixop_offset) != '\0') {
-                printf("invalid variable postfix operation.");
+                push_calcerr(INVALID_VAR_POSTFIX_OP);
                 operr = 1;
               }
               break;
             default:
-              printf("unknown variable postfix operation.");
+              push_calcerr(UNKNOWN_VAR_POSTFIX_OP);
               operr = 1;
               break;
           }
@@ -191,10 +209,15 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case SUBTR:
       case DIV:
         if(*(calcop + var_offset) != '\0') {
-          printf("invalid operation.");
+          push_calcerr(INVALID_CALC_OP);
           operr = 1;
         }
         break;
+      case PRINTVAR:
+        if(strcmp(calcop + var_offset, "...") == 0) {
+          printop_spread = 1;
+          break;
+        }
       case VARASSIGN:
       case ADDVAR:
       case MULVAR:
@@ -202,23 +225,34 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case DIVVAR:
         var_type = parse_varstr(calcop + var_offset, &var_start, &var_end, oprest);
         if(var_type == INVALID_VAR) {
-          printf("\ninvalid variable (or range) in prefix operation.");
+          if(opt == PRINTVAR)
+            push_calcerr(INVALID_VAR_IN_PRINT_OP);
+          else
+            push_calcerr(INVALID_VAR_IN_PREFIX_OP);
           operr = 1;
         } else  if(*oprest != '\0') {
-          printf("\ninvalid operation excess part.");
+          push_calcerr(INVALID_OP_EXTRA_PART);
           operr = 1;
         }
         break;
+      case UNKNOWN_OP:
+        push_calcerr(UNKNOWN_CALC_OP);
+        operr = 1;
+        break;
+      default:
+        push_calcerr(NOT_IMPLEMENTED_CALC_OP);
+        operr = 1;
+        break;
     }
 
-    if(err_seq && !operr)
-      printf("\n");
-    err_seq = operr;
+    if(printseq)
+      /* here we also need to print vars */
+      flusherrors();
 
     if(operr)
       continue;
 
-    /*handle here already checked and valid calc operation*/
+    /*here calc operation is already proven to be valid */
     switch(opt) {
       case NUMPUSH:
         break;
@@ -226,4 +260,14 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         break;
     }
   } while(c != EOF);
+}
+
+#include <stdio.h>
+#include "calcerr.h"
+
+void flusherrors(void) {
+  char *err;
+
+  while(err = pop_calcerr())
+    printf("%s\n", err);
 }
