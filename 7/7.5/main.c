@@ -115,10 +115,11 @@ main() {
 static char calcop[MAXOP];
 static char oprest[MAXOP];
 
-static float *stackptr, *stackstart, *stackend;
+static float *stackptr, *stackend;
 
 int postfixcalc(char const *input, char const *exposefmt, ...) {
   int c, i, iter;
+  float *stackvalptr;
 
   struct varexpose *exposelist;
 
@@ -268,8 +269,46 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
             *stackptr++ = lookup(i);
         /*future: show calc stack full error*/
         break;
+      case ADDVAR:
+      case MULVAR:
+      case SUBTRVAR:
+      case DIVVAR:
+          if(stackptr == numstack)
+            break;
+          if(tvar != SINGLE_VAR || tvar != VAR_RANGE)
+            /* not implemented var type */
+            break;
+
+          stackvalptr = stackptr - 1;
+          for(i = var_start, iter = 1; iter; stackvalptr--, iter = tvar == VAR_RANGE && iterateint(&i, var_end)) {
+            switch(opt) {
+              case ADDVAR:
+                *stackvalptr += lookupvar(i);
+                break;
+              case MULVAR:
+                *stackvalptr *= lookupvar(i);
+                break;
+              case SUBTRVAR:
+                if(postfixop)
+                  *stackvalptr = lookupvar(i) - *stackvalptr;
+                else
+                  *stackvalptr -= lookupvar(i);
+                break;
+              case DIVVAR:
+                if(postfixop)
+                  *stackvalptr = lookupvar(i) / *stackvalptr;
+                else
+                  *stackvalptr /= lookupvar(i);
+                break;
+              default:
+                break;
+            }
+            if(stackvalptr == numstack)
+              break;
+          }
+          break;
       case CLEARSTACK:
-        stackptr = stackstart;
+        stackptr = numstack;
         break;
       case PRINTVAR:
         if(printop_spread)
@@ -288,5 +327,4 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
 #define MAXCALCSTACK 1000
 static float numstack[MAXCALCSTACK];
 static float *stackptr = numstack;
-static float *stackstart = numstack;
 static float *stackend = numstack + MAXCALCSTACK;

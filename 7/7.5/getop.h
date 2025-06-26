@@ -3,7 +3,6 @@ enum optypes {
   NUMPUSH,
   VAROP,
   VARASSIGN,
-  VAROPTASSIGN,
   CLEARSTACK,
   ADD,
   MUL,

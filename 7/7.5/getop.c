@@ -14,7 +14,6 @@ static struct op {
   { VAROP, {NULL} },
 
   { VARASSIGN, {"=", NULL}, {sizeof("=") - 1} },
-  { VAROPTASSIGN, {"=?", NULL}, {sizeof("=?") - 1} },
   /* compile time abbreviations and their length defined */
   { CLEARSTACK, {"clear", "clr", NULL}, {sizeof("clear") - 1, sizeof("clr") - 1} },
   { ADD, {"+", NULL}, {sizeof("+") - 1} },
