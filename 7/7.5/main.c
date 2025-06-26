@@ -119,7 +119,7 @@ static float *stackptr, *stackend;
 
 int postfixcalc(char const *input, char const *exposefmt, ...) {
   int c, i, iter;
-  float *stackvalptr;
+  float *stackvalptr, op1, op2;
 
   struct varexpose *exposelist;
 
@@ -307,6 +307,38 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
               break;
           }
           break;
+      case ADD:
+      case MUL:
+      case SUBTR:
+      case DIV:
+        op1 = op2 = 0;
+        if(stackptr == numstack)
+          break;
+        else if(stackptr == numstack + 1)
+          op2 = *--stackptr;
+        else {
+          op2 = *--stackptr;
+          op1 = *--stackptr;
+        }
+
+        switch(opt) {
+          case ADD:
+            *stackptr++ = op1 + op2;
+            break;
+          case MUL:
+            *stackptr++ = op1 * op2;
+            break;
+          case SUBTR:
+            *stackptr++ = op1 - op2;
+            break;
+          case DIV:
+            *stackptr++ = op1 / op2;
+            break;
+          default:
+            break;
+        }
+
+        break;
       case CLEARSTACK:
         stackptr = numstack;
         break;
