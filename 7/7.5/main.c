@@ -103,6 +103,7 @@ main() {
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdarg.h>
 #include "calcerr.h"
 #include "printvars.h"
 #include "vartable.h"
@@ -118,10 +119,12 @@ static char oprest[MAXOP];
 static float *stackptr, *stackend;
 
 int postfixcalc(char const *input, char const *exposefmt, ...) {
+  va_list ap;
+
   int c, i, iter;
   float *stackvalptr, op1, op2;
 
-  struct varexpose *exposelist;
+  struct varexpose *exposelist, *exposenode;
 
   int operr, printseq;
   enum optypes opt;
@@ -354,6 +357,18 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         break;
     }
   } while(c != EOF);
+
+  va_start(ap, exposefmt);
+  for(exposenode = exposelist; exposenode != NULL; exposenode = exposenode->next)
+    switch(exposenode->type) {
+      case EXPOSE_FLOAT:
+        *va_arg(ap, float *) = lookupva(exposenode->i);
+        break;
+      default:
+        printf("not supported expose type.\n");
+        break;
+    }
+  va_end(ap);
 }
 
 #define MAXCALCSTACK 1000
