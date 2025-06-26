@@ -105,6 +105,7 @@ main() {
 #include <string.h>
 #include "calcerr.h"
 #include "printvars.h"
+#include "vartable.h"
 #include "var.h"
 #include "varexpose.h"
 #include "getop.h"
@@ -114,21 +115,10 @@ main() {
 static char calcop[MAXOP];
 static char oprest[MAXOP];
 
-/*returns the size of a stack after push or -1 if not succeede.*/
-int push_numstack(float num);
-
-/*pop number from num stack to num, returns the size of a stack after
-pop, or -1 if no nodes exists in a stack.
-*/
-int pop_numstack(float *num);
-
-/*same as pop, just not poping, but simply retrieving a value from stack*/
-int top_numstack(float *num);
-
-void clear_numstack(void);
+static float *stackptr, *stackstart, *stackend;
 
 int postfixcalc(char const *input, char const *exposefmt, ...) {
-  int c, i;
+  int c, i, iter;
 
   struct varexpose *exposelist;
 
@@ -239,6 +229,8 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         push_calcerr(UNKNOWN_CALC_OP);
         operr = 1;
         break;
+      case CLEARSTACK:
+        break;
       default:
         push_calcerr(NOT_IMPLEMENTED_CALC_OP);
         operr = 1;
@@ -257,6 +249,27 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
     /*here calc operation is already proven to be valid */
     switch(opt) {
       case NUMPUSH:
+        *stackptr++ = fnum;
+        break;
+      case VAROP:
+        if(tvar == VAR_RANGE && var_end <= 0 || var_start <= 0) {
+          push_calcerr(INVALID_NOT_POSITIVE_VAR);
+          operr = 1;
+          break;
+        }
+
+        if(tvar == SINGLE_VAR && stackptr != stackend)
+          *stackptr++ = lookupvar(var_start);
+        else if(tvar == VAR_RANGE)
+          for(i = var_start, iter = 1;
+            iter && stackptr != stackend;
+            iter = iterateint(&i, var_end)
+          )
+            *stackptr++ = lookup(i);
+        /*future: show calc stack full error*/
+        break;
+      case CLEARSTACK:
+        stackptr = stackstart;
         break;
       case PRINTVAR:
         if(printop_spread)
@@ -271,3 +284,9 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
     }
   } while(c != EOF);
 }
+
+#define MAXCALCSTACK 1000
+static float numstack[MAXCALCSTACK];
+static float *stackptr = numstack;
+static float *stackstart = numstack;
+static float *stackend = numstack + MAXCALCSTACK;

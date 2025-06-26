@@ -9,6 +9,7 @@ static struct err_entity {
 } errmessages[] = {
   INVALID_FLOAT, "invalid float.",
   INVALID_VAR, "invalid variable (or range).",
+  INVALID_NOT_POSITIVE_VAR, "invalid var index, must be positive number.",
   INVALID_VAR_POSTFIX_OP, "invalid variable postfix operation.",
   UNKNOWN_VAR_POSTFIX_OP, "unknown variable postfix operation.",
   INVALID_CALC_OP, "invalid calculator operation.",

@@ -22,4 +22,13 @@ subseqent calls will return EOF unitl reset.
 */
 int getch(char *);
 
+/* modify i until iend is reached, returns 1 if iterated, else 0
+iterated means, it modifies i, so if i modified == iend then 1,
+if called again, then 0. */
+int iterateint(int *i, int iend);
+
+/* iterate i until iend excluded, so if i reached iend,
+immediately 0 returns. */
+int iterateint_excluded(int *i, int iend);
+
 #endif
