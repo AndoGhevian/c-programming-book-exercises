@@ -200,6 +200,13 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
               operr = 1;
               break;
           }
+
+        /* check only if valid var operation */
+        if(!operr)
+          if(tvar == VAR_RANGE && var_end <= 0 || var_start <= 0) {
+            push_calcerr(INVALID_NOT_POSITIVE_VAR);
+            operr = 1;
+          }
         break;
       case ADD:
       case MUL:
@@ -230,6 +237,9 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         } else  if(*oprest != '\0') {
           push_calcerr(INVALID_OP_EXTRA_PART);
           operr = 1;
+        } else if(tvar == VAR_RANGE && var_end <= 0 || var_start <= 0) {
+          push_calcerr(INVALID_NOT_POSITIVE_VAR);
+          operr = 1;
         }
         break;
       case UNKNOWN_OP:
@@ -259,12 +269,8 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         *stackptr++ = fnum;
         break;
       case VAROP:
-        if(tvar == VAR_RANGE && var_end <= 0 || var_start <= 0) {
-          push_calcerr(INVALID_NOT_POSITIVE_VAR);
-          operr = 1;
-          break;
-        }
-
+        /* opposite to operations against vars, var push work
+          as a list against suggestedvars, not as a stack. */
         if(tvar == SINGLE_VAR && stackptr != stackend)
           *stackptr++ = lookupvar(var_start);
         else if(tvar == VAR_RANGE)
@@ -279,6 +285,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case MULVAR:
       case SUBTRVAR:
       case DIVVAR:
+      case VARASSIGN:
           if(stackptr == numstack)
             break;
           if(tvar != SINGLE_VAR || tvar != VAR_RANGE)
@@ -286,7 +293,10 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
             break;
 
           stackvalptr = stackptr - 1;
-          for(i = var_start, iter = 1; iter; stackvalptr--, iter = tvar == VAR_RANGE && iterateint(&i, var_end)) {
+          for(i = tvar == VAR_RANGE ? var_end : var_start, iter = 1;
+            iter;
+            stackvalptr--, iter = tvar == VAR_RANGE && iterateint(&i, var_start)
+          ) {
             switch(opt) {
               case ADDVAR:
                 *stackvalptr += lookupvar(i);
@@ -305,6 +315,10 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
                   *stackvalptr = lookupvar(i) / *stackvalptr;
                 else
                   *stackvalptr /= lookupvar(i);
+                break;
+              case VARASSIGN:
+                installvar(i, *stackvalptr);
+                /* future: handle not enough memory for var install error */
                 break;
               default:
                 break;
@@ -343,7 +357,6 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
           default:
             break;
         }
-
         break;
       case CLEARSTACK:
         stackptr = numstack;
