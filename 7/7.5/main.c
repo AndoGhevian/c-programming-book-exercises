@@ -116,7 +116,10 @@ main() {
 static char calcop[MAXOP];
 static char oprest[MAXOP];
 
-static float *stackptr, *stackend;
+#define MAXCALCSTACK 1000
+static float numstack[MAXCALCSTACK];
+static float *stackptr = numstack;
+static float *stackend = numstack + MAXCALCSTACK;
 
 int postfixcalc(char const *input, char const *exposefmt, ...) {
   va_list ap;
@@ -375,8 +378,3 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
     free_linked_list(exposelist, (char *)exposelist->next - (char *)exposelist);
   free_vartable();
 }
-
-#define MAXCALCSTACK 1000
-static float numstack[MAXCALCSTACK];
-static float *stackptr = numstack;
-static float *stackend = numstack + MAXCALCSTACK;

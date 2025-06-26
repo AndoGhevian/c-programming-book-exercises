@@ -30,9 +30,10 @@ static char dummystr[MAXVAREXP + 1];
  */
 struct varexpose *parse_varexposeconfig(char const *conf) {
   struct varexpose *varstack = NULL, *varnode = NULL;
+  char const *ptr;
   int iserror = 0;
   int ivar_start, ivar_end, i, n;
-  char *varexpptr, *ptr;
+  char *varexpptr;
   enum var_entities tvar;
 
   char const *varexpendptr = varexp + MAXVAREXP;

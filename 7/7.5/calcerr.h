@@ -20,7 +20,7 @@ they will be silently omited */
 void push_calcerr(enum calc_errors t);
 /*returns appropriate error message in stack
 or NULL if no errors left */
-char *pop_calcerr(void);
+char const *pop_calcerr(void);
 int has_calcerr(void);
 /* pop and print all errors */
 void flusherrors(void);

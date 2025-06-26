@@ -3,6 +3,7 @@
 #include "util/util.h"
 #include "vartable.h"
 
+struct var;
 static void insertvarinorder(struct var *);
 
 #define TABGRANULARITY 1000

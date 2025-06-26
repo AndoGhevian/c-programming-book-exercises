@@ -31,7 +31,7 @@ void push_calcerr(enum calc_errors t) {
     *errtop++ = t;
 }
 
-char *pop_calcerr(void) {
+char const *pop_calcerr(void) {
   int i, t;
 
   if(errtop == errors)
@@ -49,7 +49,7 @@ int has_calcerr(void) {
 }
 
 void flusherrors(void) {
-  char *err;
+  char const *err;
 
   while(err = pop_calcerr())
     printf("%s\n", err);

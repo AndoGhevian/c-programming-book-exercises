@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "util.h"
 
-int getch(char *src) {
-  static char *srcptr = NULL;
-  static char *prevreadptr = NULL;
+int getch(char const *src) {
+  static char const *srcptr = NULL;
+  static char const *prevreadptr = NULL;
   static int isfinish = 0;
 
   if(src == NULL || *src == '\0') {

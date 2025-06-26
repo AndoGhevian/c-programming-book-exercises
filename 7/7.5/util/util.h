@@ -20,7 +20,7 @@ RESET simply an empty string defined in
 util header. otherwise after EOF all
 subseqent calls will return EOF unitl reset.
 */
-int getch(char *);
+int getch(char const *);
 
 /* modify i until iend is reached, returns 1 if iterated, else 0
 iterated means, it modifies i, so if i modified == iend then 1,
