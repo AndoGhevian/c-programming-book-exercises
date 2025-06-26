@@ -126,8 +126,6 @@ int top_numstack(float *num);
 
 void clear_numstack(void);
 
-void flusherrors(void);
-
 int postfixcalc(char const *input, char const *exposefmt, ...) {
   int c, i;
 
@@ -256,18 +254,9 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
     switch(opt) {
       case NUMPUSH:
         break;
+      case PRINTVAR:
       default:
         break;
     }
   } while(c != EOF);
-}
-
-#include <stdio.h>
-#include "calcerr.h"
-
-void flusherrors(void) {
-  char *err;
-
-  while(err = pop_calcerr())
-    printf("%s\n", err);
 }

@@ -46,3 +46,10 @@ char *pop_calcerr(void) {
 int has_calcerr(void) {
   return errtop > errors;
 }
+
+void flusherrors(void) {
+  char *err;
+
+  while(err = pop_calcerr())
+    printf("%s\n", err);
+}
