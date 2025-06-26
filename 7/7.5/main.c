@@ -272,7 +272,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
             iter && stackptr != stackend;
             iter = iterateint(&i, var_end)
           )
-            *stackptr++ = lookup(i);
+            *stackptr++ = lookupvar(i);
         /*future: show calc stack full error*/
         break;
       case ADDVAR:
