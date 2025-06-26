@@ -369,6 +369,11 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         break;
     }
   va_end(ap);
+
+  /*here we need to free memory for exposelist and variables*/
+  if(exposelist)
+    free_linked_list(exposelist, (char *)exposelist->next - (char *)exposelist);
+  free_vartable();
 }
 
 #define MAXCALCSTACK 1000

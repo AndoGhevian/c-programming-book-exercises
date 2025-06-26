@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "util/util.h"
 #include "vartable.h"
 
 static void insertvarinorder(struct var *);
@@ -73,4 +74,12 @@ int scanvar(int i) {
   if(nextvar == NULL)
     return -1;
   return nextvar->i;
+}
+
+void free_vartable(void) {
+  int i;
+  if(orderedvars)
+    free_linked_list(orderedvars, (char *)orderedvars->nextinorder - (char *)orderedvars);
+  for(i = 0; i < TABGRANULARITY; i++)
+    vartab[i] = NULL;
 }

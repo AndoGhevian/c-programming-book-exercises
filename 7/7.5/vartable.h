@@ -12,3 +12,5 @@ int installvar(int, float);
   -1 returned if end is reached.
 */
 int scanvar(int);
+
+void free_vartable(void);
