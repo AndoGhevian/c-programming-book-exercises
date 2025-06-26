@@ -362,7 +362,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
   for(exposenode = exposelist; exposenode != NULL; exposenode = exposenode->next)
     switch(exposenode->type) {
       case EXPOSE_FLOAT:
-        *va_arg(ap, float *) = lookupva(exposenode->i);
+        *va_arg(ap, float *) = lookupvar(exposenode->i);
         break;
       default:
         printf("not supported expose type.\n");
