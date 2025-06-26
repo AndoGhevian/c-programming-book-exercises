@@ -44,9 +44,10 @@ void push_printvar(int var) {
 }
 
 void flushprintvars(void) {
-  int i;
+  int i, doesprint;
   struct printvar *clearnode, *printnode;
 
+  doesprint = printsequence != NULL;
   for(printnode = printsequence;
     printnode != NULL;
     clearnode = printnode, printnode = printnode->next, free(clearnode)
@@ -61,4 +62,8 @@ void flushprintvars(void) {
     else
       for(i = scanvar(-1); i > 0; i = scanvar(i))
         printf("&%d=%.4g ", i, lookupvar(i));
+  printsequence = NULL;
+
+  if(doesprint)
+    putchar('\n');
 }
