@@ -388,6 +388,6 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
 
   /*here we need to free memory for exposelist and variables*/
   if(exposelist)
-    free_linked_list(exposelist, (char *)exposelist->next - (char *)exposelist);
+    free_linked_list(exposelist, (char *)&exposelist->next - (char *)exposelist);
   free_vartable();
 }
