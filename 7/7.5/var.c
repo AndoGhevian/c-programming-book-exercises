@@ -66,9 +66,9 @@ enum var_entities parse_varstr(char const *s, int *var_start, int *var_end, char
   }
   else if(n == 0)
     if((n = sscanf(s, "...&%d%s", var_end, s_rest)) == 0 || n == EOF)
-      return INVALID_VAR;
+      return INVALID_VAR_STR;
     else
       return VAR_RANGE;
   else
-    return INVALID_VAR;
+    return INVALID_VAR_STR;
 }

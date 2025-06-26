@@ -1,7 +1,7 @@
 enum var_entities {
-  INVALID_VAR,
+  INVALID_VAR_STR,
   SINGLE_VAR,
-  VAR_RANGE,
+  VAR_RANGE
 };
 
 /*format: it is assumed there is no spaces,

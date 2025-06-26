@@ -174,7 +174,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         break;
       case VAROP:
         tvar = parse_varstr(calcop, &var_start, &var_end, oprest);
-        if(operr = tvar == INVALID_VAR)
+        if(operr = tvar == INVALID_VAR_STR)
           push_calcerr(INVALID_VAR);
         else
           switch(getop(oprest, &postfixop_offset)) {
@@ -218,7 +218,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case SUBTRVAR:
       case DIVVAR:
         tvar = parse_varstr(calcop + var_offset, &var_start, &var_end, oprest);
-        if(tvar == INVALID_VAR) {
+        if(tvar == INVALID_VAR_STR) {
           if(opt == PRINTVAR)
             push_calcerr(INVALID_VAR_IN_PRINT_OP);
           else

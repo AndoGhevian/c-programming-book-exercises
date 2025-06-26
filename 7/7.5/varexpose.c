@@ -49,7 +49,7 @@ struct varexpose *parse_varexposeconfig(char const *conf) {
 
     ivar_start = 1;
     tvar = parse_varstr(varexp, &ivar_start, &ivar_end, dummystr);
-    if(tvar == INVALID_VAR || *dummystr != '\0')
+    if(tvar == INVALID_VAR_STR || *dummystr != '\0')
       varexp_errno = INVALID_VAR_EXPOSE_CONFIG;
     else
       switch(tvar) {
