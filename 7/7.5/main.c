@@ -104,6 +104,7 @@ main() {
 #include <ctype.h>
 #include <string.h>
 #include "calcerr.h"
+#include "printvars.h"
 #include "var.h"
 #include "varexpose.h"
 #include "getop.h"
@@ -136,7 +137,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
 
   int var_start, var_end;
   int var_offset, postfixop_offset, postfixop;
-  enum var_entities var_type;
+  enum var_entities tvar;
 
   float fnum;
   int printop_spread;
@@ -156,9 +157,10 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       if(c == '\n')
         printseq = 1;
 
-    if(printseq)
-      /* here we also need to print vars */
+    if(printseq) {
+      flushprintvars();
       flusherrors();
+    }
     printseq = 0;
 
     for(i = 0; c != EOF && !isspace(c) && i < MAXOP - 1; c = getch(input), i++)
@@ -177,8 +179,8 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
           push_calcerr(INVALID_FLOAT);
         break;
       case VAROP:
-        var_type = parse_varstr(calcop, &var_start, &var_end, oprest);
-        if(operr = var_type == INVALID_VAR)
+        tvar = parse_varstr(calcop, &var_start, &var_end, oprest);
+        if(operr = tvar == INVALID_VAR)
           push_calcerr(INVALID_VAR);
         else
           switch(getop(oprest, &postfixop_offset)) {
@@ -221,8 +223,8 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case MULVAR:
       case SUBTRVAR:
       case DIVVAR:
-        var_type = parse_varstr(calcop + var_offset, &var_start, &var_end, oprest);
-        if(var_type == INVALID_VAR) {
+        tvar = parse_varstr(calcop + var_offset, &var_start, &var_end, oprest);
+        if(tvar == INVALID_VAR) {
           if(opt == PRINTVAR)
             push_calcerr(INVALID_VAR_IN_PRINT_OP);
           else
@@ -243,9 +245,11 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         break;
     }
 
-    if(printseq)
-      /* here we also need to print vars */
+    if(printseq) {
+      flushprintvars();
       flusherrors();
+    }
+    printseq = 0;
 
     if(operr)
       continue;
@@ -255,6 +259,13 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case NUMPUSH:
         break;
       case PRINTVAR:
+        if(printop_spread)
+          push_printvarspread();
+        else if(tvar == SINGLE_VAR)
+          push_printvar(var_start);
+        else if(tvar == VAR_RANGE)
+          push_printvarrange(var_start, var_end);
+        break;
       default:
         break;
     }
