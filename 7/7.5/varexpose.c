@@ -6,6 +6,9 @@
 #include "var.h"
 #include "util/util.h"
 
+enum varexpose_error varexp_errno;
+char const *varexp_errstr;
+
 /* stack data structure */
 static void free_varnode(struct varexpose *);
 static struct varexpose *push_varnode(struct varexpose *, int, enum expose_types);

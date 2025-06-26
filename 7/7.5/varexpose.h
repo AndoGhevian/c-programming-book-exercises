@@ -24,8 +24,8 @@ enum varexpose_error {
   INVALID_VAR_RANGE_EXPOSE_END
 };
 
-enum varexpose_error varexp_errno;
-char const *varexp_errstr;
+extern enum varexpose_error varexp_errno;
+extern char const *varexp_errstr;
 
 static char *varexp_err_messages[] = {
   "", /* 0 -> no error */

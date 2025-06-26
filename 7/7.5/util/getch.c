@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "util.h"
 
+char const *RESET_GETCH = "";
+
 int getch(char const *src) {
   static char const *srcptr = NULL;
   static char const *prevreadptr = NULL;

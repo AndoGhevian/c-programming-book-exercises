@@ -11,7 +11,7 @@ void free_linked_list(void *, int);
 instead of symbolic name to not allocate
 each time an empty string (1 character array '\0').
 */
-char const *RESET_GETCH = "";
+extern char const *RESET_GETCH;
 
 /* NULL to read from standard input.
 before changing source you need to reset getch.
