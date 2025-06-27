@@ -318,6 +318,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
                 break;
               case VARASSIGN:
                 installvar(i, *stackvalptr);
+                stackvalptr--;
                 /* future: handle not enough memory for var install error */
                 break;
               default:
