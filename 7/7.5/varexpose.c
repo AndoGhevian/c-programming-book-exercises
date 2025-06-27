@@ -63,7 +63,11 @@ struct varexpose *parse_varexposeconfig(char const *conf) {
             break;
           }
 
-          varstack = varnode = push_varnode(varstack, ivar_start, EXPOSE_FLOAT);
+          /* no matter range or single cleanup need on error
+            of collected structures.
+          */
+          if((varnode = push_varnode(varstack, ivar_start, EXPOSE_FLOAT)) != NULL)
+            varstack = varnode;
           break;
         case VAR_RANGE:
           if(ivar_start <= 0 || ivar_end <= 0) {
@@ -95,11 +99,11 @@ struct varexpose *parse_varexposeconfig(char const *conf) {
           break;
       }
 
-    if(varexp_errno)
+    if(varexp_errno != OK_VAR_EXPOSE)
       break;
   }
 
-  if(varexp_errno) {
+  if(varexp_errno != OK_VAR_EXPOSE) {
     free_varnode(varstack);
     varstack = varnode = NULL;
   }
