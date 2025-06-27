@@ -19,7 +19,7 @@ void *reverse_stack(void *stack, int nextoffsetbytes) {
   lastnode = stack;
   if(next != NULL) {
     lastnode = reverse_stack(next, nextoffsetbytes);
-    *(void **)memberbyoffset(stack, nextoffsetbytes) = stack;
+    *(void **)memberbyoffset(next, nextoffsetbytes) = stack;
   }
 
   *(void **)memberbyoffset(stack, nextoffsetbytes) = NULL;
