@@ -143,7 +143,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
   if(exposelist == NULL) {
     /* future: handle error of parsing through varexp_errno
     and varexp_errstr */
-    printf("invalid expose configuration entity encountered.");
+    printf("invalid expose configuration entity encountered.\n");
     return 1;
   }
 
@@ -158,14 +158,20 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       flushprintvars();
       flusherrors();
     }
-    printseq = 0;
 
+    printseq = 0;
     for(i = 0; c != EOF && !isspace(c) && i < MAXOP - 1; c = getch(input), i++)
       calcop[i] = c;
     calcop[i] = '\0';
 
     if(c == EOF || c == '\n')
       printseq = 1;
+
+    if(c == EOF && *calcop == '\0') {
+      flushprintvars();
+      flusherrors();
+      break;
+    }
 
     operr = 0;
     printop_spread = 0;
@@ -258,7 +264,6 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       flushprintvars();
       flusherrors();
     }
-    printseq = 0;
 
     if(operr)
       continue;
@@ -288,7 +293,7 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
       case VARASSIGN:
           if(stackptr == numstack)
             break;
-          if(tvar != SINGLE_VAR || tvar != VAR_RANGE)
+          if(tvar != SINGLE_VAR && tvar != VAR_RANGE)
             /* not implemented var type */
             break;
 
@@ -372,6 +377,11 @@ int postfixcalc(char const *input, char const *exposefmt, ...) {
         break;
       default:
         break;
+    }
+
+    if(printseq) {
+      flushprintvars();
+      flusherrors();
     }
   } while(c != EOF);
 
