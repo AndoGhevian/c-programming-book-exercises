@@ -94,8 +94,15 @@ as invalid and will not have effect.
 
 #include <stdio.h>
 
-main() {
+int postfixcalc(char const *input, char const *exposefmt, ...);
 
+main() {
+  float f1, f2, f3;
+  f1 = f2 = f3 = 0;
+
+  printf("before %.2f %.2f %.2f\n", f1, f2, f3);
+  postfixcalc("1 2 + 4 * =&1 5 =&3...&2 print&1 print&2...&4", "&1 &3...&1", &f1, &f2, &f3, &f2);
+  printf("after %.2f %.2f %.2f\n", f1, f2, f3);
 
   return 0;
 }
