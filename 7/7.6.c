@@ -24,12 +24,14 @@ main(int argc, char *argv[]) {
     exit(3);
   } else if(nline == 0) {
     fprintf(stderr, "command %s: files %s, %s are compared equal.\n", prog, argv[1], argv[2]);
+
+    printf("%d", nline);
   } else {
     fprintf(stderr, "command %s: files %s, %s are not equal at line %d.\n", prog, argv[1], argv[2], nline);
     fprintf(stderr, "%s\n%s\n", s1, s2);
 
     /* program output for subsequent usage by caller */
-    fprintf(stdout, "%d", nline);
+    printf("%d", nline);
   }
 
   return 0;
