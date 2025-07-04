@@ -21,6 +21,16 @@
   specify only numbers, because they can be arbitrary
   strings, so they will be provided as arguments
   and check will be done at runtime.
+
+  continue discussion (part 2):
+  we introduced colstr, but then it occurre that
+  because start and end parts are not intended to be
+  clipped, we have no reason to include them in that
+  function. more than that, problem of hard usage introduced
+  due to symbolic constants. also leak of ability to use
+  dynamic clip string, maybe based on the part that should be clipped.
+
+  hence the next function: strclip (not implemented yet)
 */
 
 #include <stdio.h>
@@ -83,3 +93,30 @@ int printpagehead(char *title, int page, int maxline, FILE *fp) {
   if(ferror(fp))
     return EOF;
 }
+
+/* external variables holding clip start and end pointers */
+char *colclip_s, *colclip_e;
+
+/* col cliped by ellipsis ...
+  you can set 0 to hide ellipsis.
+*/
+#define COLCLIPSIZE 3
+#define COLSIZE 16
+
+#if COLCLIPSIZE > COLSIZE / 3
+  #error column size should be less than or equal to third of column size.
+#endif
+
+/* the reason we return on each call a separately allocated
+  column is because column size is a constant provided
+  by the library, rather than a user.
+
+  and to allow a users define their own COLSIZE for each c file,
+  we mark it static
+
+  some other reason, honestly and excuse is that, is that
+  some users will need to have hold multiple columns in memory
+  to print them later, if they want to support table, with
+  multy line columns.
+*/
+static char *colstr(char const *s, char const *col_s, char const *col_e, int col_al);
