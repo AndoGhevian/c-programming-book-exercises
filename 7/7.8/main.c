@@ -48,7 +48,8 @@ char printfmt[MAXFMT];
 char numstr[MAX_INT_DIG];
 
 /* there is possibility to implement more sophisticated
-  solution, but in the end the provided one is enough.
+  solution, but in the end the provided one is enough,
+  the advanced version will be similiar to "CSS Flexbox"
 */
 
 /* this solution is an extendable boilerplate for fitting any
