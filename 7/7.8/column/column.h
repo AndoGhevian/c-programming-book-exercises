@@ -15,4 +15,5 @@
 #endif
 
 void printpagecol(char *, unsigned int);
+void printtitlecol(char *, char *);
 #endif

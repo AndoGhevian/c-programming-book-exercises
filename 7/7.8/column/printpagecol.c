@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "../pageprops.h"
 #include "../strclip.h"
-#include "col.h"
+#include "column.h"
 #include "interprops.h"
 
 #define MAX_INT_DIG 100
@@ -26,7 +26,7 @@ void printpagecol(char *col, unsigned int page) {
   static int const pageclip_skip = 1;
   static int const pageclip_rest = 2;
 
-  int i, clippedsize, notfit;
+  int i, clippedsize;
   int numlen, fmtlen, outboundlen;
 
   /* separate column truncation common mechanism*/
@@ -68,7 +68,7 @@ void printpagecol(char *col, unsigned int page) {
     fillellipsis(printfmt + fmtlen, CLIPSIZE);
   }
   else
-    sprintf(printfmt, "%%-s" "%%+%ds", COLSIZE - labelen);
+    sprintf(printfmt, "%%-s" "%%%ds", COLSIZE - labelen);
   /*______________________________________________________*/
 
   sprintf(col, printfmt, label, numstr);
