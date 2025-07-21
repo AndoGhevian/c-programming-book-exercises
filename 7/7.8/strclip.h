@@ -1,3 +1,5 @@
+#ifndef STRCLIP_H
+#define STRCLIP_H
 /* clip the content to fit appropriate len.
 
 returns length of clipped part if
@@ -33,3 +35,4 @@ so eventually this function is able to close all use cases one
 can think of.
 */
 int strclip(char *, int, int, int);
+#endif

@@ -1,3 +1,5 @@
+#include "strclip.h"
+
 int strclip(char *s, int clipskip, int clipperlen, int cliprest) {
   int cliplen;
 
