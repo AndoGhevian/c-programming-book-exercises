@@ -12,7 +12,7 @@
   warning: current solution of column trimming can result in
   extra ellipsis.
 */
-void printtitlecol(char *col, char *title) {
+char *sprinttitlecol(char *col, char *title) {
   int i, clippedsize;
 
   if((clippedsize = strclip(title, 0, CLIPSIZE, COLSIZE - CLIPSIZE)) != 0)
@@ -22,4 +22,5 @@ void printtitlecol(char *col, char *title) {
     sprintf(col + CLIPSIZE, "%s", title + clippedsize);
   else
     sprintf(col, "%*s", COLSIZE, title);
+  return col;
 }

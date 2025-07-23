@@ -20,8 +20,8 @@ char numstr[MAX_INT_DIG];
   warning: current solution of column trimming can result in
   extra ellipsis.
 */
-void printpagecol(char *col, unsigned int page) {
-  static char const label[] = "page ";
+char *sprintpagecol(char *col, unsigned int page) {
+  static char const label[] = " page ";
   static int const labelen = (sizeof label) - 1;
   static int const pageclip_skip = 1;
   static int const pageclip_rest = 2;
@@ -72,4 +72,5 @@ void printpagecol(char *col, unsigned int page) {
   /*______________________________________________________*/
 
   sprintf(col, printfmt, label, numstr);
+  return col;
 }

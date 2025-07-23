@@ -14,6 +14,6 @@
   #error clip size should be less than or equal to column size.
 #endif
 
-void printpagecol(char *, unsigned int);
-void printtitlecol(char *, char *);
+char *sprintpagecol(char *, unsigned int);
+char *sprinttitlecol(char *, char *);
 #endif
